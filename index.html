@@ -337,6 +337,7 @@ input.ei:focus,select.ss:focus{outline:none;border-color:var(--pl);background:#f
         <option>บริการผู้บังคับบัญชา</option><option>ผช.ครูฝึก</option>
         <option>พัน.1</option><option>พัน.3</option><option>ศยพ.</option><option>ขาด</option>
       </select>
+      <input class="sf" id="fpos" type="search" placeholder="ค้นหาในคอลัมน์ยอด...">
       <span id="tcnt" style="font-size:11px;color:var(--m);white-space:nowrap"></span>
     </div>
     <div class="tsc"><div class="tvsc">
@@ -630,11 +631,12 @@ function sortInd(col){
 }
 function rnT(){
   var q=(V("sq")||"").toLowerCase();
-  var fc=V("fco"),fs=V("fst");
+  var fc=V("fco"),fs=V("fst"),fp=(V("fpos")||"").toLowerCase();
   var L=soldiers.slice();
   if(q) L=L.filter(function(s){return (s.fname+s.lname+s.gen+s.rank+s.status_text+s.kong_kong+s.hoppy).toLowerCase().indexOf(q)>=0;});
   if(fc) L=L.filter(function(s){return s.company===parseInt(fc,10);});
   if(fs) L=L.filter(function(s){return s.kong_kong===fs;});
+  if(fp) L=L.filter(function(s){return (s.status_text||"").toLowerCase().indexOf(fp)>=0;});
   L.sort(function(a,b){
     var va,vb;
     if(sortCol==="id"||sortCol==="company"){va=a[sortCol]||0;vb=b[sortCol]||0;return sortDir*(va-vb);}
@@ -1008,6 +1010,7 @@ function init(){
   G("sq").addEventListener("input",rnT);
   G("fco").addEventListener("change",rnT);
   G("fst").addEventListener("change",rnT);
+  G("fpos").addEventListener("input",rnT);
   var hq=G("hq");if(hq) hq.addEventListener("input",rnHist);
   document.querySelectorAll(".mo").forEach(function(m){
     m.addEventListener("click",function(e){if(e.target===m) cmo(m.id);});
