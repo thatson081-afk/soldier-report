@@ -337,7 +337,6 @@ input.ei:focus,select.ss:focus{outline:none;border-color:var(--pl);background:#f
         <option>บริการผู้บังคับบัญชา</option><option>ผช.ครูฝึก</option>
         <option>พัน.1</option><option>พัน.3</option><option>ศยพ.</option><option>ขาด</option>
       </select>
-      <select class="sf" id="fpos"><option value="">ทุกยอด</option></select>
       <span id="tcnt" style="font-size:11px;color:var(--m);white-space:nowrap"></span>
     </div>
     <div class="tsc"><div class="tvsc">
@@ -535,9 +534,6 @@ function calcRptFromSoldiers(co){
     sy: cntKK(lst,"ศยพ."),
     gb: cntKK(lst,"กลับบ้าน"),
     kd: cntKK(lst,"ขาด"),
-    pc: cntKK(lst,"ผช.ครูฝึก"),
-    pn: cntKK(lst,"โทษ")+cntKK(lst,"โทษนอก"),
-    rs: cntKK(lst,"บริการผู้บังคับบัญชา")+cntKK(lst,"พัน.1")+cntKK(lst,"พัน.3")+cntKK(lst,"ฉก.9")
   };
 }
 
@@ -649,13 +645,10 @@ function fillPosFilter(){
 
 function rnT(){
   var q=(V("sq")||"").toLowerCase();
-  fillPosFilter();
-  var fc=V("fco"),fs=V("fst"),fp=V("fpos");
   var L=soldiers.slice();
   if(q) L=L.filter(function(s){return (s.fname+s.lname+s.gen+s.rank+s.status_text+s.kong_kong+s.hoppy).toLowerCase().indexOf(q)>=0;});
   if(fc) L=L.filter(function(s){return s.company===parseInt(fc,10);});
   if(fs) L=L.filter(function(s){return s.kong_kong===fs;});
-  if(fp) L=L.filter(function(s){return (s.status_text||"")===fp;});
   L.sort(function(a,b){
     var va,vb;
     if(sortCol==="id"||sortCol==="company"){va=a[sortCol]||0;vb=b[sortCol]||0;return sortDir*(va-vb);}
@@ -885,9 +878,6 @@ function syncRptFromSoldiers(){
   var r2=calcRptFromSoldiers(2);
   var r3=calcRptFromSoldiers(3);
   // Update RD with live soldier data
-  RD.r2.kk=r2.kk; RD.r2.sy=r2.sy; RD.r2.gb=r2.gb; RD.r2.kd=r2.kd; RD.r2.pc=r2.pc; RD.r2.pn=r2.pn; RD.r2.rs=r2.rs;
-  RD.r3.kk=r3.kk; RD.r3.sy=r3.sy; RD.r3.gb=r3.gb; RD.r3.kd=r3.kd; RD.r3.pc=r3.pc; RD.r3.pn=r3.pn; RD.r3.rs=r3.rs;
-  // จำหน่าย = ศยพ + กลับบ้าน + ขาด + โทษ(รวมโทษนอก) + ราชการ + ผู้ช่วยทหารใหม่
   RD.r2.jn=RD.r2.sy+RD.r2.gb+RD.r2.kd+RD.r2.pn+RD.r2.rs+RD.r2.pc;
   RD.r3.jn=RD.r3.sy+RD.r3.gb+RD.r3.kd+RD.r3.pn+RD.r3.rs+RD.r3.pc;
   // เต็ม = คงกอง + จำหน่าย
@@ -923,7 +913,6 @@ function rRow(l,k,s){
 }
 function rnRpt(){
   var d=G("rd");if(!d.value) d.value=new Date().toISOString().split("T")[0];
-  // Auto fields (green): kk,sy,gb,kd,pn,rs,pc — Computed (yellow): t,jn
   H("rf2",
     rRow("ยอดเต็ม","t","r2",false)+
     rRow("ศยพ.","sy","r2",true)+
@@ -1029,7 +1018,6 @@ function init(){
   G("sq").addEventListener("input",rnT);
   G("fco").addEventListener("change",rnT);
   G("fst").addEventListener("change",rnT);
-  G("fpos").addEventListener("change",rnT);
   var hq=G("hq");if(hq) hq.addEventListener("input",rnHist);
   document.querySelectorAll(".mo").forEach(function(m){
     m.addEventListener("click",function(e){if(e.target===m) cmo(m.id);});
