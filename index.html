@@ -319,7 +319,10 @@ input.ei:focus,select.ss:focus{outline:none;border-color:var(--pl);background:#f
   <div class="pgh">
     <div><div class="pgt">&#128203; ยอดรวมร้อย 2 และ ร้อย 3</div>
       <div class="pgs">คลิกหัวตารางเพื่อจัดเรียง</div></div>
-    <button class="btn bp bsm" onclick="window.print()">&#128424; พิมพ์</button>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn bg bsm" onclick="APP.expTblXls()">&#128190; Export Excel</button>
+      <button class="btn bp bsm" onclick="window.print()">&#128424; พิมพ์</button>
+    </div>
   </div>
   <div id="tbl-st"></div>
   <div class="card">
@@ -530,11 +533,21 @@ function cntKK(lst,key){var n=0;for(var i=0;i<lst.length;i++){if(lst[i].kong_kon
 /* ── AUTO-CALC REPORT FROM SOLDIERS ── */
 function calcRptFromSoldiers(co){
   var lst=soldiers.filter(function(s){return s.company===co;});
+  function cntIn(keys){
+    var n=0;
+    for(var i=0;i<lst.length;i++){
+      if(keys.indexOf(lst[i].kong_kong)>=0) n++;
+    }
+    return n;
+  }
   return {
-    kk: cntKK(lst,"คงกอง"),
-    sy: cntKK(lst,"ศยพ."),
-    gb: cntKK(lst,"กลับบ้าน"),
-    kd: cntKK(lst,"ขาด"),
+    kk: cntIn(["คงกอง"]),
+    sy: cntIn(["ศยพ."]),
+    gb: cntIn(["กลับบ้าน"]),
+    kd: cntIn(["ขาด"]),
+    pn: cntIn(["โทษ"]),
+    rs: cntIn(["ราชการ"]),
+    pc: cntIn(["ผช.ครูฝึก"])
   };
 }
 
@@ -644,8 +657,11 @@ function fillPosFilter(){
   el.value=cur && vals[cur]?cur:"";
 }
 
-function rnT(){
+function getFilteredRows(){
   var q=(V("sq")||"").toLowerCase();
+  var fc=V("fco");
+  var fs=V("fst");
+  var fp=V("fpos");
   var L=soldiers.slice();
   if(q) L=L.filter(function(s){return (s.fname+s.lname+s.gen+s.rank+s.status_text+s.kong_kong+s.hoppy).toLowerCase().indexOf(q)>=0;});
   if(fc) L=L.filter(function(s){return s.company===parseInt(fc,10);});
@@ -657,6 +673,11 @@ function rnT(){
     va=(a[sortCol]||"").toString();vb=(b[sortCol]||"").toString();
     return sortDir*va.localeCompare(vb,"th");
   });
+  return L;
+}
+
+function rnT(){
+  var L=getFilteredRows();
   H("tbl-st",stH(soldiers));
   G("tcnt").textContent=L.length+" / "+soldiers.length;
   var cols=[
@@ -693,6 +714,43 @@ function rnT(){
     );
   }
   H("tbdy",rows.join(""));
+}
+
+function expTblXls(){
+  var L=getFilteredRows();
+  if(!L.length){tst("ไม่มีข้อมูลสำหรับ Export");return;}
+  var head=["ลำดับ","รุ่น","ยศ","ชื่อ","นามสกุล","ร้อย","ยอด","คงกอง","HOPPY","กลับกรม-ขาด"];
+  var html="<table border='1'><tr>";
+  for(var i=0;i<head.length;i++) html+="<th>"+head[i]+"</th>";
+  html+="</tr>";
+  for(var j=0;j<L.length;j++){
+    var s=L[j];
+    html+="<tr>"+
+      "<td>"+(s.id||"")+"</td>"+
+      "<td>"+eq(s.gen||"")+"</td>"+
+      "<td>"+eq(s.rank||"")+"</td>"+
+      "<td>"+eq(s.fname||"")+"</td>"+
+      "<td>"+eq(s.lname||"")+"</td>"+
+      "<td>"+(s.company||"")+"</td>"+
+      "<td>"+eq(s.status_text||"")+"</td>"+
+      "<td>"+eq(s.kong_kong||"")+"</td>"+
+      "<td>"+eq(s.hoppy||"")+"</td>"+
+      "<td>"+eq(s.return_absent||"")+"</td>"+
+    "</tr>";
+  }
+  html+="</table>";
+  var blob=new Blob(["\ufeff<html><head><meta charset='UTF-8'></head><body>"+html+"</body></html>"],{type:"application/vnd.ms-excel;charset=utf-8;"});
+  var a=document.createElement("a");
+  var url=URL.createObjectURL(blob);
+  var d=new Date();
+  var y=d.getFullYear(),m=pad(d.getMonth()+1),dd=pad(d.getDate());
+  a.href=url;
+  a.download="ยอดรวมร้อย2_3_"+y+m+dd+".xls";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  tst("Export Excel เรียบร้อย ("+L.length+" รายการ)");
 }
 
 function setupTblDelegation(){
@@ -880,6 +938,8 @@ function syncRptFromSoldiers(){
   var r2=calcRptFromSoldiers(2);
   var r3=calcRptFromSoldiers(3);
   // Update RD with live soldier data
+  RD.r2.sy=r2.sy; RD.r2.gb=r2.gb; RD.r2.kd=r2.kd; RD.r2.pn=r2.pn; RD.r2.rs=r2.rs; RD.r2.pc=r2.pc; RD.r2.kk=r2.kk;
+  RD.r3.sy=r3.sy; RD.r3.gb=r3.gb; RD.r3.kd=r3.kd; RD.r3.pn=r3.pn; RD.r3.rs=r3.rs; RD.r3.pc=r3.pc; RD.r3.kk=r3.kk;
   RD.r2.jn=RD.r2.sy+RD.r2.gb+RD.r2.kd+RD.r2.pn+RD.r2.rs+RD.r2.pc;
   RD.r3.jn=RD.r3.sy+RD.r3.gb+RD.r3.kd+RD.r3.pn+RD.r3.rs+RD.r3.pc;
   // เต็ม = คงกอง + จำหน่าย
@@ -1044,6 +1104,7 @@ return {
   upF:upF,opEd:opEd,svEd:svEd,opDel:opDel,cfDel:cfDel,
   dzOv:dzOv,dzDp:dzDp,hdF:hdF,cfImp:cfImp,
   cmo:cmo,bRpt:bRpt,cpyRpt:cpyRpt,
+  expTblXls:expTblXls,
   syncRptFromSoldiers:syncRptFromSoldiers,
   undo:undo,redo:redo,
   rnHist:rnHist,clearLog:clearLog,
