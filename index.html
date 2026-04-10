@@ -530,11 +530,21 @@ function cntKK(lst,key){var n=0;for(var i=0;i<lst.length;i++){if(lst[i].kong_kon
 /* ── AUTO-CALC REPORT FROM SOLDIERS ── */
 function calcRptFromSoldiers(co){
   var lst=soldiers.filter(function(s){return s.company===co;});
+  function cntIn(keys){
+    var n=0;
+    for(var i=0;i<lst.length;i++){
+      if(keys.indexOf(lst[i].kong_kong)>=0) n++;
+    }
+    return n;
+  }
   return {
-    kk: cntKK(lst,"คงกอง"),
-    sy: cntKK(lst,"ศยพ."),
-    gb: cntKK(lst,"กลับบ้าน"),
-    kd: cntKK(lst,"ขาด"),
+    kk: cntIn(["คงกอง"]),
+    sy: cntIn(["ศยพ."]),
+    gb: cntIn(["กลับบ้าน"]),
+    kd: cntIn(["ขาด"]),
+    pn: cntIn(["โทษ"]),
+    rs: cntIn(["ราชการ"]),
+    pc: cntIn(["ผช.ครูฝึก"])
   };
 }
 
@@ -883,6 +893,8 @@ function syncRptFromSoldiers(){
   var r2=calcRptFromSoldiers(2);
   var r3=calcRptFromSoldiers(3);
   // Update RD with live soldier data
+  RD.r2.sy=r2.sy; RD.r2.gb=r2.gb; RD.r2.kd=r2.kd; RD.r2.pn=r2.pn; RD.r2.rs=r2.rs; RD.r2.pc=r2.pc; RD.r2.kk=r2.kk;
+  RD.r3.sy=r3.sy; RD.r3.gb=r3.gb; RD.r3.kd=r3.kd; RD.r3.pn=r3.pn; RD.r3.rs=r3.rs; RD.r3.pc=r3.pc; RD.r3.kk=r3.kk;
   RD.r2.jn=RD.r2.sy+RD.r2.gb+RD.r2.kd+RD.r2.pn+RD.r2.rs+RD.r2.pc;
   RD.r3.jn=RD.r3.sy+RD.r3.gb+RD.r3.kd+RD.r3.pn+RD.r3.rs+RD.r3.pc;
   // เต็ม = คงกอง + จำหน่าย
