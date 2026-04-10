@@ -646,6 +646,9 @@ function fillPosFilter(){
 
 function rnT(){
   var q=(V("sq")||"").toLowerCase();
+  var fc=V("fco");
+  var fs=V("fst");
+  var fp=V("fpos");
   var L=soldiers.slice();
   if(q) L=L.filter(function(s){return (s.fname+s.lname+s.gen+s.rank+s.status_text+s.kong_kong+s.hoppy).toLowerCase().indexOf(q)>=0;});
   if(fc) L=L.filter(function(s){return s.company===parseInt(fc,10);});
