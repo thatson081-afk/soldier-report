@@ -337,7 +337,6 @@ input.ei:focus,select.ss:focus{outline:none;border-color:var(--pl);background:#f
         <option>บริการผู้บังคับบัญชา</option><option>ผช.ครูฝึก</option>
         <option>พัน.1</option><option>พัน.3</option><option>ศยพ.</option><option>ขาด</option>
       </select>
-      <input class="sf" id="fpos" type="search" placeholder="ค้นหาในคอลัมน์ยอด...">
       <span id="tcnt" style="font-size:11px;color:var(--m);white-space:nowrap"></span>
     </div>
     <div class="tsc"><div class="tvsc">
@@ -535,8 +534,6 @@ function calcRptFromSoldiers(co){
     sy: cntKK(lst,"ศยพ."),
     gb: cntKK(lst,"กลับบ้าน"),
     kd: cntKK(lst,"ขาด"),
-    pc: cntKK(lst,"ผช.ครูฝึก")
-    // โทษ, ราชการ, จำหน่าย = manual
   };
 }
 
@@ -629,14 +626,29 @@ function sortInd(col){
   if(sortCol!==col) return "<span class='sort-ico'>⇅</span>";
   return sortDir===1?"<span class='sort-ico ac'>↓</span>":"<span class='sort-ico ac'>↑</span>";
 }
+
+function fillPosFilter(){
+  var el=G("fpos");
+  if(!el) return;
+  var cur=el.value||"";
+  var vals={};
+  for(var i=0;i<soldiers.length;i++){
+    var v=(soldiers[i].status_text||"").trim();
+    if(v) vals[v]=1;
+  }
+  var list=Object.keys(vals).sort(function(a,b){return a.localeCompare(b,"th");});
+  var h="<option value=''>ทุกยอด</option>";
+  for(var j=0;j<list.length;j++) h+="<option>"+eq(list[j])+"</option>";
+  el.innerHTML=h;
+  el.value=cur && vals[cur]?cur:"";
+}
+
 function rnT(){
   var q=(V("sq")||"").toLowerCase();
-  var fc=V("fco"),fs=V("fst"),fp=(V("fpos")||"").toLowerCase();
   var L=soldiers.slice();
   if(q) L=L.filter(function(s){return (s.fname+s.lname+s.gen+s.rank+s.status_text+s.kong_kong+s.hoppy).toLowerCase().indexOf(q)>=0;});
   if(fc) L=L.filter(function(s){return s.company===parseInt(fc,10);});
   if(fs) L=L.filter(function(s){return s.kong_kong===fs;});
-  if(fp) L=L.filter(function(s){return (s.status_text||"").toLowerCase().indexOf(fp)>=0;});
   L.sort(function(a,b){
     var va,vb;
     if(sortCol==="id"||sortCol==="company"){va=a[sortCol]||0;vb=b[sortCol]||0;return sortDir*(va-vb);}
@@ -866,9 +878,6 @@ function syncRptFromSoldiers(){
   var r2=calcRptFromSoldiers(2);
   var r3=calcRptFromSoldiers(3);
   // Update RD with live soldier data
-  RD.r2.kk=r2.kk; RD.r2.sy=r2.sy; RD.r2.gb=r2.gb; RD.r2.kd=r2.kd; RD.r2.pc=r2.pc;
-  RD.r3.kk=r3.kk; RD.r3.sy=r3.sy; RD.r3.gb=r3.gb; RD.r3.kd=r3.kd; RD.r3.pc=r3.pc;
-  // จำหน่าย = ศยพ + กลับบ้าน + ขาด + โทษ + ราชการ + ผู้ช่วยทหารใหม่
   RD.r2.jn=RD.r2.sy+RD.r2.gb+RD.r2.kd+RD.r2.pn+RD.r2.rs+RD.r2.pc;
   RD.r3.jn=RD.r3.sy+RD.r3.gb+RD.r3.kd+RD.r3.pn+RD.r3.rs+RD.r3.pc;
   // เต็ม = คงกอง + จำหน่าย
@@ -892,8 +901,8 @@ function rRow(l,k,s){
       "<td><input class='ri' id='ri-"+s+"-"+k+"' value='"+v+"' oninput='APP.bRpt()'></td>"+
       "<td style='color:var(--m);font-size:11px'>นาย</td></tr>";
   }
-  var isAuto=(k==="kk"||k==="sy"||k==="gb"||k==="kd"||k==="pc");
-  var isSum=(k==="t");
+  var isAuto=(k==="kk"||k==="sy"||k==="gb"||k==="kd"||k==="pn"||k==="rs"||k==="pc");
+  var isSum=(k==="t"||k==="jn");
   var bg=isSum?"background:#fef3c7;":isAuto?"background:#dcfce7;":"background:#f1f5f9;";
   var dot=isAuto?" <span style='color:#16a34a;font-size:10px'>&#9679;</span>":
           isSum?" <span style='color:#d97706;font-size:10px'>&#931;</span>":"";
@@ -904,7 +913,6 @@ function rRow(l,k,s){
 }
 function rnRpt(){
   var d=G("rd");if(!d.value) d.value=new Date().toISOString().split("T")[0];
-  // Auto fields (green): kk,sy,gb,kd,pc — Manual (white): pn,rs,jn — Computed (yellow): t
   H("rf2",
     rRow("ยอดเต็ม","t","r2",false)+
     rRow("ศยพ.","sy","r2",true)+
@@ -1010,7 +1018,6 @@ function init(){
   G("sq").addEventListener("input",rnT);
   G("fco").addEventListener("change",rnT);
   G("fst").addEventListener("change",rnT);
-  G("fpos").addEventListener("input",rnT);
   var hq=G("hq");if(hq) hq.addEventListener("input",rnHist);
   document.querySelectorAll(".mo").forEach(function(m){
     m.addEventListener("click",function(e){if(e.target===m) cmo(m.id);});
