@@ -244,7 +244,6 @@ input.ei:focus,select.ss:focus{outline:none;border-color:var(--pl);background:#f
   <div class="ns">ยอดประจำวัน</div>
   <div class="ni" id="ni-tbl" onclick="APP.go('tbl')">&#128203; ยอดรวมร้อย 2,3</div>
   <div class="ndv"></div>
-  <div class="ni" id="ni-dis" onclick="APP.go('dis')">&#128202; จำหน่ายกองร้อย</div>
   <div class="ni" id="ni-rpt" onclick="APP.go('rpt')">&#128200; รายงานยอดประจำวัน</div>
   <div class="ndv"></div>
   <div class="ni" id="ni-hist" onclick="APP.go('hist')">&#128336; ประวัติการแก้ไข</div>
@@ -338,21 +337,13 @@ input.ei:focus,select.ss:focus{outline:none;border-color:var(--pl);background:#f
         <option>บริการผู้บังคับบัญชา</option><option>ผช.ครูฝึก</option>
         <option>พัน.1</option><option>พัน.3</option><option>ศยพ.</option><option>ขาด</option>
       </select>
+      <input class="sf" id="fpos" type="search" placeholder="ค้นหาในคอลัมน์ยอด...">
       <span id="tcnt" style="font-size:11px;color:var(--m);white-space:nowrap"></span>
     </div>
     <div class="tsc"><div class="tvsc">
       <table><thead id="tbl-head"></thead><tbody id="tbdy"></tbody></table>
     </div></div>
   </div>
-</div>
-
-<!-- DISCHARGE -->
-<div class="pg" id="pg-dis">
-  <div class="pgh">
-    <div><div class="pgt">&#128202; จำหน่ายกองร้อย</div><div class="pgs">ยอดสรุปแยกตามตำแหน่ง</div></div>
-    <button class="btn bp bsm" onclick="window.print()">&#128424; พิมพ์</button>
-  </div>
-  <div id="dis-out"></div>
 </div>
 
 <!-- REPORT -->
@@ -368,7 +359,6 @@ input.ei:focus,select.ss:focus{outline:none;border-color:var(--pl);background:#f
   <div class="rpt-legend">
     <span><span style="display:inline-block;width:10px;height:10px;background:#dcfce7;border-radius:2px"></span> &#9679; sync จากยอดทหาร</span>
     <span><span style="display:inline-block;width:10px;height:10px;background:#fef3c7;border-radius:2px"></span> &#931; คำนวณอัตโนมัติ</span>
-    <span><span style="display:inline-block;width:10px;height:10px;background:#f1f5f9;border-radius:2px"></span> จากชีทจำหน่าย (read-only)</span>
     <span><span style="display:inline-block;width:10px;height:10px;background:#eff6ff;border-radius:2px"></span> ทหารใหม่ (แก้ได้)</span>
   </div>
   <div class="g2" style="margin-bottom:12px">
@@ -546,7 +536,7 @@ function calcRptFromSoldiers(co){
     gb: cntKK(lst,"กลับบ้าน"),
     kd: cntKK(lst,"ขาด"),
     pc: cntKK(lst,"ผช.ครูฝึก")
-    // โทษ, รถเกราะ, ราชการ, จำหน่าย = manual
+    // โทษ, ราชการ, จำหน่าย = manual
   };
 }
 
@@ -560,7 +550,6 @@ function go(n){
   closeSide();
   if(n==="home") rnH();
   else if(n==="tbl") rnT();
-  else if(n==="dis") rnD();
   else if(n==="rpt") rnRpt();
   else if(n==="hist") rnHist();
 }
@@ -579,13 +568,14 @@ function closeSide(){
 
 /* ── STATS ── */
 function cS(L){
-  var r={ab:0,kk:0,lv:0,pn:0,out:0,pc:0,sy:0};
+  var r={ab:0,kk:0,lv:0,pn:0,pno:0,out:0,pc:0,sy:0};
   for(var i=0;i<L.length;i++){
     var k=L[i].kong_kong;
     if(k==="หนีทหาร") r.ab++;
     if(k==="คงกอง") r.kk++;
     if(k==="อนุญาต"||k==="อนุญาต2"||k==="กลับบ้าน") r.lv++;
-    if(k==="โทษ"||k==="โทษนอก") r.pn++;
+    if(k==="โทษ") r.pn++;
+    if(k==="โทษนอก") r.pno++;
     if(k==="พัน.1"||k==="พัน.3"||k==="ฉก.9") r.out++;
     if(k==="ผช.ครูฝึก") r.pc++;
     if(k==="ศยพ.") r.sy++;
@@ -599,7 +589,8 @@ function stH(L){
     "<div class='sb gn'><div class='sn'>"+s.kk+"</div><div class='sl'>คงกอง</div></div>"+
     "<div class='sb rd'><div class='sn'>"+s.ab+"</div><div class='sl'>หนีทหาร</div></div>"+
     "<div class='sb or'><div class='sn'>"+s.lv+"</div><div class='sl'>ลา/กลับบ้าน</div></div>"+
-    "<div class='sb pu'><div class='sn'>"+s.pn+"</div><div class='sl'>รับโทษ</div></div>"+
+    "<div class='sb pu'><div class='sn'>"+s.pn+"</div><div class='sl'>โทษ</div></div>"+
+    "<div class='sb pu'><div class='sn'>"+s.pno+"</div><div class='sl'>โทษนอก</div></div>"+
     "<div class='sb id'><div class='sn'>"+s.out+"</div><div class='sl'>หน่วยนอก</div></div>"+
     "<div class='sb tl'><div class='sn'>"+s.pc+"</div><div class='sl'>ผช.ครูฝึก</div></div>"+
     "<div class='sb gy'><div class='sn'>"+s.sy+"</div><div class='sl'>ศยพ.</div></div>"+
@@ -640,11 +631,12 @@ function sortInd(col){
 }
 function rnT(){
   var q=(V("sq")||"").toLowerCase();
-  var fc=V("fco"),fs=V("fst");
+  var fc=V("fco"),fs=V("fst"),fp=(V("fpos")||"").toLowerCase();
   var L=soldiers.slice();
   if(q) L=L.filter(function(s){return (s.fname+s.lname+s.gen+s.rank+s.status_text+s.kong_kong+s.hoppy).toLowerCase().indexOf(q)>=0;});
   if(fc) L=L.filter(function(s){return s.company===parseInt(fc,10);});
   if(fs) L=L.filter(function(s){return s.kong_kong===fs;});
+  if(fp) L=L.filter(function(s){return (s.status_text||"").toLowerCase().indexOf(fp)>=0;});
   L.sort(function(a,b){
     var va,vb;
     if(sortCol==="id"||sortCol==="company"){va=a[sortCol]||0;vb=b[sortCol]||0;return sortDir*(va-vb);}
@@ -735,49 +727,6 @@ function upF(id,f,v){
   save();
   if(f==="kong_kong") rnT();
   else tst("บันทึกแล้ว");
-}
-
-/* ── DISCHARGE ── */
-function rnD(){
-  var D2=disData;
-  var CC=["เต็ม","ขาด","หนี","โทษ","กลับบ้าน","รถเกราะ","ศยพ.","รักษาตัว","ราชการ","HOP","คงกอง"];
-  function cel(v,isK){return isK?"<td class='dk'>"+v+"</td>":"<td"+(v===0?" class='dz'":"")+">"+v+"</td>";}
-  function mkR(r,cls){
-    var h="<tr"+(cls?" class='"+cls+"'":"")+"><td class='dl'>"+r.label+"</td>";
-    for(var i=0;i<CC.length;i++) h+=cel(r.all[CC[i]],CC[i]==="คงกอง");
-    h+="<td class='sep'></td>";
-    for(var i=0;i<CC.length;i++) h+=cel(r.r2[CC[i]],CC[i]==="คงกอง");
-    h+="<td class='sep'></td>";
-    for(var i=0;i<CC.length;i++) h+=cel(r.r3[CC[i]],CC[i]==="คงกอง");
-    return h+"</tr>";
-  }
-  var n=CC.length;
-  var hd="<tr><th rowspan='2' style='min-width:140px;text-align:left;padding:7px'>ยอด</th>"+
-    "<th colspan='"+n+"' style='padding:7px'>รวมยอดร้อย 2,3</th>"+
-    "<th rowspan='2' class='sep-h'></th>"+
-    "<th colspan='"+n+"' style='background:#1e4976;padding:7px'>ยอดร้อย 2</th>"+
-    "<th rowspan='2' class='sep-h'></th>"+
-    "<th colspan='"+n+"' style='background:#164060;padding:7px'>รวมยอดร้อย 3</th></tr><tr>";
-  for(var g=0;g<3;g++){
-    for(var i=0;i<CC.length;i++) hd+="<th class='vth'>"+CC[i]+"</th>";
-    if(g<2) hd+="<th class='sep-h'></th>";
-  }
-  hd+="</tr>";
-  var body="";
-  for(var i=0;i<D2.rows.length;i++){if(!D2.rows[i].is_total) body+=mkR(D2.rows[i],"");}
-  if(D2.total){
-    var t=D2.total;
-    var tr2="<tr class='dtot'><td class='dl'>รวม</td>";
-    for(var i=0;i<CC.length;i++){var v=t.all[CC[i]];tr2+="<td"+(CC[i]==="คงกอง"?" class='dkk-tot'":"")+">"+v+"</td>";}
-    tr2+="<td class='sep'></td>";
-    for(var i=0;i<CC.length;i++){var v=t.r2[CC[i]];tr2+="<td"+(CC[i]==="คงกอง"?" class='dkk-tot'":"")+">"+v+"</td>";}
-    tr2+="<td class='sep'></td>";
-    for(var i=0;i<CC.length;i++){var v=t.r3[CC[i]];tr2+="<td"+(CC[i]==="คงกอง"?" class='dkk-tot'":"")+">"+v+"</td>";}
-    body+=tr2+"</tr>";
-  }
-  for(var i=0;i<D2.pch_rows.length;i++){if(!D2.pch_rows[i].is_total) body+=mkR(D2.pch_rows[i],"dpc");}
-  if(D2.pch_total) body+=mkR(D2.pch_total,"dpt");
-  H("dis-out","<div class='card'><div class='ch'>ตารางจำหน่ายกองร้อย</div><div class='dw'><table class='dt'><thead>"+hd+"</thead><tbody>"+body+"</tbody></table></div></div>");
 }
 
 /* ── EDIT ── */
@@ -919,26 +868,19 @@ function syncRptFromSoldiers(){
   // Update RD with live soldier data
   RD.r2.kk=r2.kk; RD.r2.sy=r2.sy; RD.r2.gb=r2.gb; RD.r2.kd=r2.kd; RD.r2.pc=r2.pc;
   RD.r3.kk=r3.kk; RD.r3.sy=r3.sy; RD.r3.gb=r3.gb; RD.r3.kd=r3.kd; RD.r3.pc=r3.pc;
-  // จำหน่าย = ศยพ + รถเกราะ + กลับบ้าน + ขาด + โทษ + ราชการ + ผู้ช่วยทหารใหม่
-  RD.r2.jn=RD.r2.sy+RD.r2.rk+RD.r2.gb+RD.r2.kd+RD.r2.pn+RD.r2.rs+RD.r2.pc;
-  RD.r3.jn=RD.r3.sy+RD.r3.rk+RD.r3.gb+RD.r3.kd+RD.r3.pn+RD.r3.rs+RD.r3.pc;
+  // จำหน่าย = ศยพ + กลับบ้าน + ขาด + โทษ + ราชการ + ผู้ช่วยทหารใหม่
+  RD.r2.jn=RD.r2.sy+RD.r2.gb+RD.r2.kd+RD.r2.pn+RD.r2.rs+RD.r2.pc;
+  RD.r3.jn=RD.r3.sy+RD.r3.gb+RD.r3.kd+RD.r3.pn+RD.r3.rs+RD.r3.pc;
   // เต็ม = คงกอง + จำหน่าย
   RD.r2.t=RD.r2.kk+RD.r2.jn;
   RD.r3.t=RD.r3.kk+RD.r3.jn;
   // Update all display inputs
-  var keys=["t","sy","rk","gb","kd","pn","rs","pc","jn","kk"];
+  var keys=["t","sy","gb","kd","pn","rs","pc","jn","kk"];
   for(var i=0;i<keys.length;i++){
     var e2=G("ri-r2-"+keys[i]);if(e2) e2.value=RD.r2[keys[i]]||0;
     var e3=G("ri-r3-"+keys[i]);if(e3) e3.value=RD.r3[keys[i]]||0;
   }
   bRpt();
-}
-
-function calcTotal(sec){
-  var keys=["sy","rk","gb","kd","pn","rs","pc","kk"]; // jn(จำหน่าย) ไม่รวมในเต็ม
-  var sum=0;for(var i=0;i<keys.length;i++) sum+=gv("ri-"+sec+"-"+keys[i]);
-  var el=G("ri-"+sec+"-t");
-  if(el){el.value=sum;el.style.background="#fef3c7";}
 }
 
 function rRow(l,k,s){
@@ -960,16 +902,12 @@ function rRow(l,k,s){
     "<td><input class='ri' id='ri-"+s+"-"+k+"' value='"+v+"' style='"+bg+"cursor:default' readonly tabindex='-1'></td>"+
     "<td style='color:var(--m);font-size:11px'>นาย</td></tr>";
 }
-function onRi(sec,key){
-  bRpt();
-}
-
 function rnRpt(){
   var d=G("rd");if(!d.value) d.value=new Date().toISOString().split("T")[0];
-  // Auto fields (green): kk,sy,gb,kd,pc — Manual (white): pn,rk,rs,jn — Computed (yellow): t
+  // Auto fields (green): kk,sy,gb,kd,pc — Manual (white): pn,rs,jn — Computed (yellow): t
   H("rf2",
     rRow("ยอดเต็ม","t","r2",false)+
-    rRow("ศยพ.","sy","r2",true)+rRow("รถเกราะ","rk","r2",false)+
+    rRow("ศยพ.","sy","r2",true)+
     rRow("กลับบ้าน","gb","r2",true)+rRow("ขาด","kd","r2",true)+
     rRow("โทษ","pn","r2",false)+rRow("ราชการ","rs","r2",false)+
     rRow("ผู้ช่วยทหารใหม่","pc","r2",true)+rRow("จำหน่าย","jn","r2",false)+
@@ -977,7 +915,7 @@ function rnRpt(){
   );
   H("rf3",
     rRow("ยอดเต็ม","t","r3",false)+
-    rRow("ศยพ.","sy","r3",true)+rRow("รถเกราะ","rk","r3",false)+
+    rRow("ศยพ.","sy","r3",true)+
     rRow("กลับบ้าน","gb","r3",true)+rRow("ขาด","kd","r3",true)+
     rRow("โทษ","pn","r3",false)+rRow("ราชการ","rs","r3",false)+
     rRow("ผู้ช่วยทหารใหม่","pc","r3",true)+rRow("จำหน่าย","jn","r3",false)+
@@ -1000,15 +938,15 @@ function bRpt(){
   var d=new Date(ds+"T00:00:00");
   var TH=["","มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
   var thD=d.getDate()+" "+TH[d.getMonth()+1]+" พ.ศ."+(d.getFullYear()+543);
-  var r2={t:gv("ri-r2-t"),sy:gv("ri-r2-sy"),rk:gv("ri-r2-rk"),gb:gv("ri-r2-gb"),kd:gv("ri-r2-kd"),pn:gv("ri-r2-pn"),rs:gv("ri-r2-rs"),pc:gv("ri-r2-pc"),jn:gv("ri-r2-jn"),kk:gv("ri-r2-kk")};
-  var r3={t:gv("ri-r3-t"),sy:gv("ri-r3-sy"),rk:gv("ri-r3-rk"),gb:gv("ri-r3-gb"),kd:gv("ri-r3-kd"),pn:gv("ri-r3-pn"),rs:gv("ri-r3-rs"),pc:gv("ri-r3-pc"),jn:gv("ri-r3-jn"),kk:gv("ri-r3-kk")};
+  var r2={t:gv("ri-r2-t"),sy:gv("ri-r2-sy"),gb:gv("ri-r2-gb"),kd:gv("ri-r2-kd"),pn:gv("ri-r2-pn"),rs:gv("ri-r2-rs"),pc:gv("ri-r2-pc"),jn:gv("ri-r2-jn"),kk:gv("ri-r2-kk")};
+  var r3={t:gv("ri-r3-t"),sy:gv("ri-r3-sy"),gb:gv("ri-r3-gb"),kd:gv("ri-r3-kd"),pn:gv("ri-r3-pn"),rs:gv("ri-r3-rs"),pc:gv("ri-r3-pc"),jn:gv("ri-r3-jn"),kk:gv("ri-r3-kk")};
   var nw={t:gv("ri-nw-t"),gb:gv("ri-nw-gb"),kd:gv("ri-nw-kd"),rt:gv("ri-nw-rt"),rs:gv("ri-nw-rs"),hn:gv("ri-nw-hn"),sk:gv("ri-nw-sk"),jn:gv("ri-nw-jn"),kk:gv("ri-nw-kk")};
   var t23=r2.t+r3.t;
   var out=[
     "เรียนผู้บังคับกองพันทราบครับ",thD,"เวลา "+tm,"สรุปได้ยอดดังนี้","","ยอดเต็ม    "+t23+" นาย","",
-    "*ร้อย 2 เต็ม   "+r2.t+" นาย","ศยพ. = "+r2.sy+" นาย","รถเกราะ = "+r2.rk+" นาย","กลับบ้าน = "+r2.gb+" นาย","ขาด = "+r2.kd+" นาย","โทษ = "+r2.pn+" นาย","ราชการ = "+r2.rs+" นาย","ผู้ช่วยทหารใหม่ = "+r2.pc+" นาย","จำหน่าย = "+r2.jn+" นาย","รวมร้อย2  คงกอง = "+r2.kk+" นาย","",
-    "*ร้อย 3 เต็ม  "+r3.t+" นาย","ศยพ. = "+r3.sy+" นาย","รถเกราะ = "+r3.rk+" นาย","กลับบ้าน = "+r3.gb+" นาย","ขาด = "+r3.kd+" นาย","โทษ = "+r3.pn+" นาย","ราชการ = "+r3.rs+" นาย","ผู้ช่วยทหารใหม่ = "+r3.pc+" นาย","จำหน่าย = "+r3.jn+" นาย","รวมร้อย 3 คงกอง = "+r3.kk+" นาย","",
-    "รวมร้อย2,3ทั้งหมด "+t23+" นาย","ศยพ. = "+(r2.sy+r3.sy)+" นาย","รถเกราะ = "+(r2.rk+r3.rk)+" นาย","กลับบ้าน = "+(r2.gb+r3.gb)+" นาย","ขาด = "+(r2.kd+r3.kd)+" นาย","โทษ = "+(r2.pn+r3.pn)+" นาย","ผู้ช่วยทหารใหม่ = "+(r2.pc+r3.pc)+" นาย","ราชการ = "+(r2.rs+r3.rs)+" นาย","จำหน่าย = "+(r2.jn+r3.jn)+" นาย","รวมคงกอง = "+(r2.kk+r3.kk)+" นาย","",
+    "*ร้อย 2 เต็ม   "+r2.t+" นาย","ศยพ. = "+r2.sy+" นาย","กลับบ้าน = "+r2.gb+" นาย","ขาด = "+r2.kd+" นาย","โทษ = "+r2.pn+" นาย","ราชการ = "+r2.rs+" นาย","ผู้ช่วยทหารใหม่ = "+r2.pc+" นาย","จำหน่าย = "+r2.jn+" นาย","รวมร้อย2  คงกอง = "+r2.kk+" นาย","",
+    "*ร้อย 3 เต็ม  "+r3.t+" นาย","ศยพ. = "+r3.sy+" นาย","กลับบ้าน = "+r3.gb+" นาย","ขาด = "+r3.kd+" นาย","โทษ = "+r3.pn+" นาย","ราชการ = "+r3.rs+" นาย","ผู้ช่วยทหารใหม่ = "+r3.pc+" นาย","จำหน่าย = "+r3.jn+" นาย","รวมร้อย 3 คงกอง = "+r3.kk+" นาย","",
+    "รวมร้อย2,3ทั้งหมด "+t23+" นาย","ศยพ. = "+(r2.sy+r3.sy)+" นาย","กลับบ้าน = "+(r2.gb+r3.gb)+" นาย","ขาด = "+(r2.kd+r3.kd)+" นาย","โทษ = "+(r2.pn+r3.pn)+" นาย","ผู้ช่วยทหารใหม่ = "+(r2.pc+r3.pc)+" นาย","ราชการ = "+(r2.rs+r3.rs)+" นาย","จำหน่าย = "+(r2.jn+r3.jn)+" นาย","รวมคงกอง = "+(r2.kk+r3.kk)+" นาย","",
     "ทหารใหม่  "+nw.t+" นาย","กลับบ้าน = "+nw.gb+" นาย","ขาด = "+nw.kd+" นาย","รักษาตัว = "+nw.rt+" นาย","ราชการ บน.2 = "+nw.rs+" นาย","หนี = "+nw.hn+" นาย","ศึกษา ในหน่วย อย. = "+nw.sk+" นาย","จำหน่าย = "+nw.jn+" นาย","รวมทหารใหม่คงกอง = "+nw.kk+" นาย","",
     "ยอดจำหน่ายทั้งหมด  "+(r2.jn+r3.jn+nw.jn)+" นาย","ยอดทหารคงกองทั้งหมด  "+(r2.kk+r3.kk+nw.kk)+" นาย","รวมยอดทหาร   "+(t23+nw.t)+" นาย"
   ];
@@ -1072,6 +1010,7 @@ function init(){
   G("sq").addEventListener("input",rnT);
   G("fco").addEventListener("change",rnT);
   G("fst").addEventListener("change",rnT);
+  G("fpos").addEventListener("input",rnT);
   var hq=G("hq");if(hq) hq.addEventListener("input",rnHist);
   document.querySelectorAll(".mo").forEach(function(m){
     m.addEventListener("click",function(e){if(e.target===m) cmo(m.id);});
@@ -1090,7 +1029,7 @@ return {
   sortBy:sortBy,addSol:addSol,clrAdd:clrAdd,
   upF:upF,opEd:opEd,svEd:svEd,opDel:opDel,cfDel:cfDel,
   dzOv:dzOv,dzDp:dzDp,hdF:hdF,cfImp:cfImp,
-  cmo:cmo,onRi:onRi,bRpt:bRpt,cpyRpt:cpyRpt,
+  cmo:cmo,bRpt:bRpt,cpyRpt:cpyRpt,
   syncRptFromSoldiers:syncRptFromSoldiers,
   undo:undo,redo:redo,
   rnHist:rnHist,clearLog:clearLog,
