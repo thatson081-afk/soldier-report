@@ -623,6 +623,45 @@ function copyImg(elId){
   if(!el){toast('⚠️ ไม่พบพื้นที่ที่ต้องการคัดลอก');return;}
 
   const run=async()=>{
+    let target=el,cleanup=null;
+
+    // สำหรับตารางเวร: จับภาพในสัดส่วนคงที่ (คล้ายไฟล์ตัวอย่าง) ไม่ให้ภาพยืดเต็มจอ
+    if(elId==='schCap'){
+      const host=document.createElement('div');
+      host.style.position='fixed';
+      host.style.left='-10000px';
+      host.style.top='0';
+      host.style.background='#fff';
+      host.style.padding='0';
+      host.style.margin='0';
+      host.style.width='960px';
+
+      const clone=el.cloneNode(true);
+      clone.style.width='960px';
+      clone.style.maxWidth='960px';
+      clone.style.overflow='visible';
+      clone.querySelectorAll('table').forEach(t=>{t.style.width='100%';t.style.minWidth='960px';});
+
+      host.appendChild(clone);
+      document.body.appendChild(host);
+      target=clone;
+      cleanup=()=>host.remove();
+    }
+
+    try{
+      const c=await html2canvas(target,{backgroundColor:'#ffffff',scale:2,useCORS:true});
+      try{
+        await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));
+        toast('📋 คัดลอกรูปแล้ว!');
+      }catch{
+        const a=document.createElement('a');
+        a.download='ตารางเวร.png';
+        a.href=c.toDataURL();
+        a.click();
+        toast('📷 บันทึกรูปแทน');
+      }
+    }finally{
+      if(cleanup)cleanup();
     const c=await html2canvas(el,{backgroundColor:'#ffffff',scale:2,useCORS:true});
     try{
       await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));
