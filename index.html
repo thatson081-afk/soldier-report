@@ -243,6 +243,7 @@ input.ei:focus,select.ss:focus{outline:none;border-color:var(--pl);background:#f
   <div class="ndv"></div>
   <div class="ns">ยอดประจำวัน</div>
   <div class="ni" id="ni-tbl" onclick="APP.go('tbl')">&#128203; ยอดรวมร้อย 2,3</div>
+  <div class="ni" id="ni-duty" onclick="APP.openDutyPage()">&#9876; ตารางเวร รร.นกก.</div>
   <div class="ndv"></div>
   <div class="ni" id="ni-rpt" onclick="APP.go('rpt')">&#128200; รายงานยอดประจำวัน</div>
   <div class="ndv"></div>
@@ -553,6 +554,9 @@ function calcRptFromSoldiers(co){
 
 /* ── NAV ── */
 var sideOpen=false;
+function openDutyPage(){
+  window.location.href='duty.html';
+}
 function go(n){
   document.querySelectorAll(".pg").forEach(function(p){p.classList.remove("on");});
   document.querySelectorAll(".ni").forEach(function(ni){ni.classList.remove("on");});
@@ -1099,7 +1103,7 @@ function init(){
 }
 
 return {
-  go:go,toggleSide:toggleSide,closeSide:closeSide,
+  go:go,toggleSide:toggleSide,closeSide:closeSide,openDutyPage:openDutyPage,
   sortBy:sortBy,addSol:addSol,clrAdd:clrAdd,
   upF:upF,opEd:opEd,svEd:svEd,opDel:opDel,cfDel:cfDel,
   dzOv:dzOv,dzDp:dzDp,hdF:hdF,cfImp:cfImp,
