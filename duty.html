@@ -500,10 +500,18 @@ function loadPeopleFromMain(){
   }catch{return[];}
 }
 
+const safeLoadPeople=()=>{
+  try{
+    return typeof loadPeopleFromMainPage==='function' ? loadPeopleFromMainPage() : [];
+  }catch{
+    return [];
+  }
+};
+
 const BP=(()=>{
   const merged=new Map();
   BP_FALLBACK.forEach(p=>merged.set(p.name+'|'+p.surname,p));
-  loadPeopleFromMainPage().forEach(p=>merged.set(p.name+'|'+p.surname,p));
+  safeLoadPeople().forEach(p=>merged.set(p.name+'|'+p.surname,p));
   return Array.from(merged.values());
 })();
 const allPeople=()=>{const ex=lsa(KP),ks=new Set(BP.map(p=>p.name+p.surname)),m=[...BP];ex.forEach(p=>{if(!ks.has(p.name+p.surname)){m.push(p);ks.add(p.name+p.surname);}});return m;};
