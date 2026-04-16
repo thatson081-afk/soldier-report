@@ -52,9 +52,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);m
    Proportional widths, clean borders
 */
 .sch-wrap{overflow-x:auto}
-.cap-view{width:100%;display:flex;justify-content:center;align-items:flex-start;overflow:auto}
-.cap-scale{display:inline-block}
-.cap-fixed{width:949px;height:529px;background:#fff;overflow:hidden}
 .st{width:100%;border-collapse:collapse;font-size:.92rem;background:#fff;table-layout:fixed}
 .st td{border:1.5px solid var(--border);vertical-align:middle;padding:0}
 .st .col-zone{width:52px}.st .col-id{width:48px}.st .col-time{width:110px}.st .col-name{} /* auto */
@@ -235,7 +232,6 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
         <input type="date" id="vDate" class="ctrl" onchange="onDateChange()">
         <button class="btn btn-ghost btn-sm" onclick="goToday()">วันนี้</button>
       </div>
-      <div class="sch-wrap"><div id="schCapView" class="cap-view"><div id="schCapScale" class="cap-scale"><div id="schCap" class="cap-fixed"><div id="schContent"></div></div></div></div></div>
     </div>
   </div>
 
@@ -476,17 +472,10 @@ function loadPeopleFromMainPage(){
     if(!Array.isArray(arr))return [];
     const dedup=new Map();
     arr.forEach(s=>{
-      const name=((s&&s.fname)||'').trim();
-      const surname=((s&&s.lname)||'').trim();
       if(!name)return;
       const key=name+surname;
       if(!dedup.has(key)){
         dedup.set(key,{
-          yot:(((s&&s.status_text)||'กองร้อย').trim()||'กองร้อย'),
-          gen:((s&&s.gen)||'').trim(),
-          name,
-          surname,
-          kk:(((s&&s.kong_kong)||'คงกอง').trim()||'คงกอง')
         });
       }
     });
@@ -511,7 +500,6 @@ const toast=(m,ms=2200)=>{const t=document.getElementById('toast');t.textContent
 const realToday=()=>{const d=new Date();const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return`${y}-${m}-${dd}`;};
 
 let curISO='';
-
 
 // ═══════════════════════════════════════════
 //  SCHEDULE
@@ -612,9 +600,6 @@ const delUD=(iso,uid)=>{if(!confirm('ลบ?'))return;remDuty(iso,uid);renderDLi
 
 function copyImg(elId){
   const el=document.getElementById(elId);
-  const opt={scale:2.5,backgroundColor:'#fff'};
-  if(elId==='schCap'){opt.width=949;opt.height=529;opt.windowWidth=949;opt.windowHeight=529;}
-  const run=()=>html2canvas(el,opt).then(async c=>{
     try{await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));toast('📋 คัดลอกรูปแล้ว!');}
     catch{const a=document.createElement('a');a.download='ตารางเวร.png';a.href=c.toDataURL();a.click();toast('📷 บันทึกรูปแทน');}
   });
