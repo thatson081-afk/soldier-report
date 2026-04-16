@@ -549,6 +549,10 @@ function ensureSchContentEl(){
   if(contentEl)return contentEl;
 
   let capEl=document.getElementById('schCap');
+  let schContent=document.getElementById('schContent');
+  if(schContent)return schContent;
+
+  let schCap=document.getElementById('schCap');
   const toolbar=document.querySelector('#pg1 .card .card-body .toolbar');
   const host=toolbar?toolbar.parentElement:document.querySelector('#pg1 .card .card-body');
   if(!host)return null;
@@ -564,6 +568,17 @@ function ensureSchContentEl(){
   contentEl.id='schContent';
   capEl.appendChild(contentEl);
   return contentEl;
+  if(!schCap){
+    schCap=document.createElement('div');
+    schCap.id='schCap';
+    schCap.className='sch-wrap';
+    host.appendChild(schCap);
+  }
+
+  schContent=document.createElement('div');
+  schContent.id='schContent';
+  schCap.appendChild(schContent);
+  return schContent;
 }
 
 function renderSch(){
@@ -595,6 +610,10 @@ function renderSch(){
   const schEl=ensureSchContentEl();
   if(!schEl){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
   schEl.innerHTML=html;
+  const schContent=ensureSchContentEl();
+  const schContent=document.getElementById('schContent');
+  if(!schContent){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
+  schContent.innerHTML=html;
   renderDList(iso);
 }
 
@@ -684,6 +703,16 @@ function copyImg(elId){
       }
     }finally{
       if(cleanup)cleanup();
+    const c=await html2canvas(el,{backgroundColor:'#ffffff',scale:2,useCORS:true});
+    try{
+      await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));
+      toast('📋 คัดลอกรูปแล้ว!');
+    }catch{
+      const a=document.createElement('a');
+      a.download='ตารางเวร.png';
+      a.href=c.toDataURL();
+      a.click();
+      toast('📷 บันทึกรูปแทน');
     }
   };
 
