@@ -662,6 +662,16 @@ function copyImg(elId){
       }
     }finally{
       if(cleanup)cleanup();
+    const c=await html2canvas(el,{backgroundColor:'#ffffff',scale:2,useCORS:true});
+    try{
+      await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));
+      toast('📋 คัดลอกรูปแล้ว!');
+    }catch{
+      const a=document.createElement('a');
+      a.download='ตารางเวร.png';
+      a.href=c.toDataURL();
+      a.click();
+      toast('📷 บันทึกรูปแทน');
     }
   };
 
