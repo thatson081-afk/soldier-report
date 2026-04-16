@@ -540,26 +540,25 @@ function getSchData(iso){
   return res;
 }
 
-function ensureSchContentEl(){
-  let contentEl=document.getElementById('schContent');
-  if(contentEl)return contentEl;
+function getScheduleMount(){
+  let mountEl=document.getElementById('schContent');
+  if(mountEl)return mountEl;
+
+  const mainBody=document.querySelector('#pg1 .card .card-body');
+  if(!mainBody)return null;
 
   let capEl=document.getElementById('schCap');
-  const toolbar=document.querySelector('#pg1 .card .card-body .toolbar');
-  const host=toolbar?toolbar.parentElement:document.querySelector('#pg1 .card .card-body');
-  if(!host)return null;
-
   if(!capEl){
     capEl=document.createElement('div');
     capEl.id='schCap';
     capEl.className='sch-wrap';
-    host.appendChild(capEl);
+    mainBody.appendChild(capEl);
   }
 
-  contentEl=document.createElement('div');
-  contentEl.id='schContent';
-  capEl.appendChild(contentEl);
-  return contentEl;
+  mountEl=document.createElement('div');
+  mountEl.id='schContent';
+  capEl.appendChild(mountEl);
+  return mountEl;
 }
 
 function renderSch(){
@@ -594,8 +593,8 @@ function renderSch(){
   html+=`<tr class="tr-sig"><td colspan="5" style="text-align:left">
     สัญญาณผ่าน &nbsp; ถาม <span class="kw">${sig.ask||'—'}</span> &nbsp; ตอบ <span class="kw">${sig.ans||'—'}</span>
   </td></tr></table>`;
-  const schEl=document.getElementById('schContent');
-  if(!schEl)return;
+  const schEl=getScheduleMount();
+  if(!schEl){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
   schEl.innerHTML=html;
   renderDList(iso);
 }
@@ -1209,7 +1208,11 @@ function initApp(){
   renderRoster();
 }
 
-initApp();
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initApp,{once:true});
+}else{
+  initApp();
+}
 </script>
 </body>
 </html>
