@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>ตารางเวร รร.นกก.</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
@@ -17,11 +14,11 @@
   --border:#9aaec0;--text:#1a2840;
   --zone-bg:#c4cbd4;--zone-name-bg:#d4dce6;
   --title-bg:#edf0f4;--signal-bg:#d0e4f8;
+  --sel:#b8d4ff;--sel-border:#1a73e8;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);min-height:100vh}
+body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);min-height:100vh;user-select:none}
 
-/* TOPBAR */
 .topbar{background:linear-gradient(135deg,var(--navy),var(--navy2) 55%,var(--navy3));border-bottom:3px solid var(--gold);display:flex;flex-direction:column;box-shadow:0 3px 18px rgba(0,0,0,.3);position:sticky;top:0;z-index:300}
 .topbar-title{text-align:center;padding:9px 20px 3px;color:var(--gold);font-size:.98rem;font-weight:700;letter-spacing:2px}
 .topbar-sub{text-align:center;color:rgba(200,168,75,.5);font-size:.68rem;padding-bottom:5px}
@@ -32,11 +29,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);m
 
 .page{display:none;padding:14px;max-width:1200px;margin:0 auto}
 .page.active{display:block}
-
 .card{background:#fff;border-radius:10px;box-shadow:0 2px 14px rgba(0,0,0,.11);overflow:hidden;margin-bottom:14px}
 .card-head{background:linear-gradient(90deg,var(--navy2),var(--navy3));color:var(--gold);padding:10px 15px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:700;font-size:.88rem}
 .card-body{padding:14px}
-
 .btn{border:none;border-radius:7px;padding:6px 14px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:.82rem;font-weight:700;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .btn-navy{background:var(--navy2);color:var(--gold2)}.btn-navy:hover{background:var(--navy3)}
 .btn-gold{background:var(--gold);color:var(--navy)}.btn-gold:hover{background:var(--gold2)}
@@ -44,22 +39,15 @@ body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);m
 .btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#7f0000}
 .btn-sm{padding:4px 10px;font-size:.74rem}
 .btn-ghost{background:transparent;border:1.5px solid var(--navy2);color:var(--navy2)}.btn-ghost:hover{background:var(--navy2);color:#fff}
-
 .ctrl{border:1.5px solid var(--border);border-radius:7px;padding:7px 10px;font-family:'Sarabun',sans-serif;font-size:.88rem;color:var(--text);background:#fff;transition:border-color .15s}
 .ctrl:focus{outline:none;border-color:var(--navy2)}
-
 .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 
-/* ═══════════ MAIN SCHEDULE TABLE ═══════════
-   5 cols: [Zone(rs)] [ID] [DayTime] [NightTime] [Name]
-   Proportional widths, clean borders
-*/
+/* ═══ MAIN SCHEDULE TABLE with resizable cols ═══ */
 .sch-wrap{overflow-x:auto}
-.st{width:100%;border-collapse:collapse;font-size:.92rem;background:#fff;table-layout:fixed}
-.st td{border:1.5px solid var(--border);vertical-align:middle;padding:0}
-.st .col-zone{width:52px}.st .col-id{width:48px}.st .col-time{width:110px}.st .col-name{} /* auto */
-
-.tr-ttl td{background:var(--title-bg);text-align:center;padding:10px 8px;font-size:.95rem;font-weight:600;color:#333;letter-spacing:.3px}
+.st{border-collapse:collapse;font-size:.92rem;background:#fff;table-layout:fixed;width:100%}
+.st td{border:1.5px solid var(--border);vertical-align:middle;padding:0;position:relative;overflow:hidden}
+.tr-ttl td{background:var(--title-bg);text-align:center;padding:10px 8px;font-size:.95rem;font-weight:600;color:#333}
 .td-zone{background:var(--zone-bg);font-weight:700;text-align:center;font-size:1rem}
 .td-zone-name{background:var(--zone-name-bg);text-align:center;font-weight:600;padding:9px 10px;font-size:.9rem;color:var(--navy2)}
 .td-sid{background:var(--title-bg);text-align:center;font-weight:400;font-size:.9rem;padding:10px 4px;color:#444}
@@ -68,7 +56,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);m
 .td-name:hover{background:#e8f0fc}
 .td-name.has-name{font-weight:600;color:var(--navy2)}
 .tr-sig td{background:var(--signal-bg);padding:9px 16px;font-size:.88rem;font-weight:500;border-top:1.5px solid var(--border)}
-.tr-sig .kw{color:var(--red);font-weight:800}
+.kw{color:var(--red);font-weight:800}
+
+/* Column resize handle for main schedule table */
+.col-resizer{position:absolute;right:0;top:0;bottom:0;width:5px;cursor:col-resize;background:transparent;z-index:10}
+.col-resizer:hover,.col-resizer.active{background:rgba(26,115,232,.4)}
 
 /* duty list */
 .duty-list{display:flex;flex-direction:column;gap:5px}
@@ -78,46 +70,77 @@ body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);m
 .bdg-in{background:#e8f5e9;color:#1b5e20;border:1px solid #a5d6a7}
 .bdg-kh{background:#fff8e1;color:#e65100;border:1px solid #ffcc80}
 
-/* ═══════════ BLANK TABLE ═══════════
-   Completely free-form spreadsheet
-   Data model: cells[row][col] = {value, colspan, merged}
-   rows[r] = array of cell objects
-*/
-.bl-wrap{overflow-x:auto;overflow-y:visible}
-.bl-tbl{border-collapse:collapse;font-size:.9rem;background:#fff;min-width:100%}
-.bl-tbl td{border:1.5px solid var(--border);vertical-align:middle;padding:0;min-width:80px;position:relative}
-.bl-tbl tr.bl-title-r td{background:var(--title-bg)}
-.bl-tbl tr.bl-sig-r td{background:var(--signal-bg)}
-.bl-tbl td.bl-zone-td{background:var(--zone-bg);font-weight:700;text-align:center;font-size:.95rem;cursor:default;width:52px;min-width:52px}
-.bl-tbl td.bl-zone-name-td{background:var(--zone-name-bg);font-weight:600;text-align:center;font-size:.9rem;color:var(--navy2)}
-.bl-tbl td.bl-id-td{background:var(--title-bg);text-align:center;font-size:.85rem;color:#555;width:46px;min-width:46px}
-.bl-tbl td.merged-hidden{display:none}
-.bl-cell-inp{
-  width:100%;border:none;background:transparent;
-  font-family:'Sarabun',sans-serif;font-size:.9rem;color:var(--text);
-  padding:9px 8px;text-align:center;resize:none;line-height:1.4;
+/* ═══ BLANK TABLE — Excel-like ═══ */
+.bl-wrap{overflow:auto;position:relative;border:1px solid var(--border);border-radius:6px;background:#fff}
+.bl-tbl{border-collapse:collapse;font-size:.9rem;background:#fff;table-layout:fixed}
+.bl-tbl th.bl-th{
+  background:#f3f4f6;border:1px solid var(--border);padding:0;font-size:.78rem;
+  color:#555;font-weight:600;text-align:center;position:sticky;top:0;z-index:10;
+  min-width:30px;height:24px;cursor:default;white-space:nowrap;overflow:hidden;
+  position:relative;
 }
-.bl-cell-inp:focus{outline:none;background:#f0f8ff}
-.bl-cell-inp.bold{font-weight:700}
-.bl-cell-inp.red-kw{color:var(--red);font-weight:700}
+.bl-tbl th.bl-th .th-txt{padding:4px 8px 4px 4px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-tbl th.bl-row-h{
+  background:#f3f4f6;border:1px solid var(--border);
+  width:36px;min-width:36px;text-align:center;font-size:.72rem;color:#777;
+  position:sticky;left:0;z-index:15;
+}
+/* column resize handle inside th */
+.th-resizer{
+  position:absolute;right:0;top:0;bottom:0;width:4px;
+  cursor:col-resize;background:transparent;
+}
+.th-resizer:hover,.th-resizer.dragging{background:var(--sel-border)}
+.bl-tbl td.bl-cell{
+  border:1px solid #d0d8e8;vertical-align:top;padding:0;
+  min-height:28px;position:relative;overflow:hidden;
+}
+.bl-tbl td.bl-cell.selected{background:rgba(26,115,232,.12);outline:none}
+.bl-tbl td.bl-cell.sel-tl{border-top:2px solid var(--sel-border)}
+.bl-tbl td.bl-cell.sel-tr{border-right:2px solid var(--sel-border)}
+.bl-tbl td.bl-cell.sel-bl{border-bottom:2px solid var(--sel-border)}
+.bl-tbl td.bl-cell.sel-br{border-left:2px solid var(--sel-border)}
+.bl-tbl td.bl-cell.active-cell{outline:2px solid var(--sel-border);outline-offset:-2px;z-index:5}
+.bl-tbl td.bl-cell.merged-hidden{display:none}
+.bl-cell-inp{
+  width:100%;height:100%;min-height:28px;
+  border:none;background:transparent;
+  font-family:'Sarabun',sans-serif;font-size:.9rem;color:var(--text);
+  padding:5px 6px;resize:none;line-height:1.5;display:block;
+}
+.bl-cell-inp:focus{outline:none}
+.bl-tbl td.bl-cell.zone-style{background:var(--zone-bg);font-weight:700}
+.bl-tbl td.bl-cell.zone-name-style{background:var(--zone-name-bg);font-weight:600;color:var(--navy2)}
+.bl-tbl td.bl-cell.title-style{background:var(--title-bg);font-weight:600;text-align:center}
+.bl-tbl td.bl-cell.sig-style{background:var(--signal-bg)}
+.bl-tbl td.bl-cell.bold-cell .bl-cell-inp{font-weight:700}
+.bl-tbl td.bl-cell.red-cell .bl-cell-inp{color:var(--red);font-weight:700}
+.bl-tbl td.bl-cell.center-cell .bl-cell-inp{text-align:center}
 
-/* Row/col control strip */
-.bl-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.bl-hint{font-size:.76rem;color:#888;font-style:italic}
+/* Selection highlight band on header */
+.bl-th.col-sel{background:#d3e3fd}
+.bl-row-h.row-sel{background:#d3e3fd}
 
-/* Right-click context menu */
+/* ═══ CONTEXT MENU ═══ */
 .ctx-menu{
-  position:fixed;z-index:8000;background:#fff;border:1px solid #dde3ed;
-  border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,.18);
-  min-width:180px;padding:5px 0;display:none;
+  position:fixed;z-index:9000;background:#fff;border:1px solid #dde3ed;
+  border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.2);
+  min-width:200px;padding:4px 0;display:none;
   font-family:'Sarabun',sans-serif;font-size:.87rem;
 }
 .ctx-menu.open{display:block}
-.ctx-item{padding:9px 16px;cursor:pointer;display:flex;align-items:center;gap:8px;color:#333;transition:background .12s}
+.ctx-item{
+  padding:9px 18px;cursor:pointer;display:flex;align-items:center;gap:9px;
+  color:#333;transition:background .1s;white-space:nowrap;
+}
 .ctx-item:hover{background:#f0f7ff;color:var(--navy2)}
+.ctx-item.danger{color:var(--red)}.ctx-item.danger:hover{background:#fff0f0}
+.ctx-item .ctx-ico{width:16px;text-align:center;font-size:.9rem}
+.ctx-item.disabled{opacity:.35;pointer-events:none}
 .ctx-sep{height:1px;background:#eee;margin:3px 0}
+.ctx-label{padding:4px 18px 2px;font-size:.7rem;font-weight:700;color:#888;letter-spacing:.5px;text-transform:uppercase}
 
-/* ═══════════ ROSTER ═══════════ */
+/* ═══ ROSTER ═══ */
 .roster-wrap{overflow:auto;max-height:calc(100vh - 200px);border-radius:10px;box-shadow:0 2px 14px rgba(0,0,0,.11)}
 #rt{border-collapse:collapse;font-size:.74rem;white-space:nowrap;background:#fff;min-width:100%}
 #rt thead tr.rh1 th{position:sticky;top:0;z-index:16;background:var(--navy2);color:var(--gold);padding:0;border:1px solid var(--navy);font-weight:700;text-align:center;user-select:none}
@@ -127,10 +150,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);m
 .th-label{flex:1;text-align:left;font-size:.78rem}
 .th-icon{font-size:.65rem;display:flex;flex-direction:column;align-items:center;gap:1px;opacity:.45;min-width:12px}
 .th-icon.active-asc .arr-up,.th-icon.active-desc .arr-dn{opacity:1;color:var(--gold2)}
-.arr-up::before{content:'▲';font-size:.48rem;line-height:1}
-.arr-dn::before{content:'▼';font-size:.48rem;line-height:1}
-.th-flt-dot{width:6px;height:6px;border-radius:50%;background:var(--gold2);flex-shrink:0;display:none}
-.th-flt-dot.on{display:block}
+.arr-up::before{content:'▲';font-size:.48rem;line-height:1}.arr-dn::before{content:'▼';font-size:.48rem;line-height:1}
+.th-flt-dot{width:6px;height:6px;border-radius:50%;background:var(--gold2);flex-shrink:0;display:none}.th-flt-dot.on{display:block}
 th.c-yot{min-width:82px}th.c-gen{min-width:58px}th.c-name{min-width:140px}th.c-kk{min-width:76px}
 th.c-day{min-width:26px;font-size:.67rem;padding:8px 2px;cursor:default}
 #rt td{padding:4px 3px;border:1px solid #dde3ed;text-align:center;vertical-align:middle}
@@ -140,14 +161,13 @@ th.c-day{min-width:26px;font-size:.67rem;padding:8px 2px;cursor:default}
 #rt td.c-kk-td{font-size:.71rem;font-weight:600}
 #rt tr:hover td{background:#f0f7ff}#rt tr:hover td.nc{background:#d5e8fa}
 .rc{cursor:pointer;min-width:26px;font-size:.67rem;transition:filter .1s}.rc:hover{filter:brightness(.87)}
-.rc-in{background:#e8f5e9;color:#1b5e20;font-weight:700}
-.rc-kh{background:#fff8e1;color:#e65100;font-weight:700}
+.rc-in{background:#e8f5e9;color:#1b5e20;font-weight:700}.rc-kh{background:#fff8e1;color:#e65100;font-weight:700}
 .rc-today{border-left:2px solid var(--gold)!important;border-right:2px solid var(--gold)!important}
 th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid var(--gold2)!important}
 .r-add-row td{background:#f9fafb;border-top:2px dashed #d0d8e8}
 
-/* GS FILTER DROPDOWN */
-.gs-drop{position:fixed;z-index:9000;background:#fff;border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,.22);width:256px;font-family:'Sarabun',sans-serif;font-size:.88rem;color:#202124;border:1px solid #dadce0;display:none;overflow:hidden}
+/* GS FILTER */
+.gs-drop{position:fixed;z-index:9100;background:#fff;border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,.22);width:256px;font-family:'Sarabun',sans-serif;font-size:.88rem;color:#202124;border:1px solid #dadce0;display:none;overflow:hidden}
 .gs-drop.open{display:block}
 .gs-drop-sec{padding:5px 0;border-bottom:1px solid #e8eaed}.gs-drop-sec:last-child{border-bottom:none}
 .gs-sort-row{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:background .12s}.gs-sort-row:hover{background:#f1f3f4}
@@ -199,15 +219,9 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
 
 .toast{position:fixed;bottom:18px;right:18px;z-index:9999;background:var(--navy2);color:#fff;border-left:4px solid var(--gold);border-radius:8px;padding:10px 18px;font-size:.85rem;font-weight:600;transform:translateY(70px);opacity:0;transition:all .3s;pointer-events:none;max-width:320px}
 .toast.show{transform:translateY(0);opacity:1}
-
-@media(max-width:600px){
-  .page{padding:8px}.st,.bl-tbl{font-size:.8rem}
-  .td-time{min-width:76px}.td-name{min-width:80px}
-}
 </style>
 </head>
 <body>
-
 <div class="topbar">
   <div class="topbar-title">⚔ ระบบตารางเวร รร.นกก.</div>
   <div class="topbar-sub">หน่วย ร้อย.2 3 พัน.2 กรม ปพ.อย. · <a href="index.html" style="color:rgba(232,200,112,.9)">↩ กลับหน้ายอดรวม</a></div>
@@ -217,10 +231,8 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
   </div>
 </div>
 
-<!-- ═══ PAGE 1 ═══ -->
+<!-- PAGE 1 -->
 <div class="page active" id="pg1">
-
-  <!-- Main schedule -->
   <div class="card">
     <div class="card-head">
       <span id="pg1Label">ตารางเวร</span>
@@ -239,10 +251,9 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
     </div>
   </div>
 
-  <!-- Blank table — free-form spreadsheet with right-click -->
   <div class="card">
     <div class="card-head">
-      <span>📝 ตารางเปล่า</span>
+      <span>📝 ตารางเปล่า <small style="font-weight:400;opacity:.7;font-size:.75rem">— ลากขอบหัวคอลัมน์ปรับความกว้าง · ลากคลุมแล้วคลิกขวาเพื่อผสาน</small></span>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="btn btn-navy btn-sm" onclick="copyImg('blankCap')">📋 คัดลอกรูป</button>
         <button class="btn btn-green btn-sm" onclick="blAddRow()">+ แถว</button>
@@ -251,23 +262,19 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
       </div>
     </div>
     <div class="card-body" style="padding:10px">
-      <div style="font-size:.74rem;color:#999;margin-bottom:8px">💡 คลิกขวาที่เซลล์เพื่อผสาน/ยกเลิกผสาน ลบแถว/คอลัมน์</div>
-      <div id="blankCap" class="bl-wrap"><div id="blankContent"></div></div>
+      <div id="blankCap" class="bl-wrap" style="max-height:520px"><div id="blankContent"></div></div>
     </div>
   </div>
 
-  <!-- Duty list -->
   <div class="card">
     <div class="card-head"><span id="dListTitle">รายชื่อเข้าเวร</span></div>
     <div class="card-body">
-      <div class="duty-list" id="dList">
-        <div style="color:#ccc;text-align:center;padding:14px;font-size:.84rem">เลือกวันที่เพื่อดูรายชื่อ</div>
-      </div>
+      <div class="duty-list" id="dList"><div style="color:#ccc;text-align:center;padding:14px;font-size:.84rem">เลือกวันที่เพื่อดูรายชื่อ</div></div>
     </div>
   </div>
 </div>
 
-<!-- ═══ PAGE 2 ═══ -->
+<!-- PAGE 2 -->
 <div class="page" id="pg2">
   <div class="card">
     <div class="card-head">
@@ -294,7 +301,7 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
   </div>
 </div>
 
-<!-- Shift picker modal -->
+<!-- Modals -->
 <div class="overlay" id="spModal" onclick="if(event.target===this)closeSP()">
   <div class="modal modal-lg">
     <button class="mcl" onclick="closeSP()">✕</button>
@@ -311,15 +318,13 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
     </div>
   </div>
 </div>
-
-<!-- Signal modal -->
 <div class="overlay" id="sigModal" onclick="if(event.target===this)closeSigModal()">
   <div class="modal">
     <button class="mcl" onclick="closeSigModal()">✕</button>
     <div class="modal-title">🔑 สัญญาณผ่านประจำวัน</div>
     <div class="frow"><label>วันที่</label><input type="date" class="ctrl" id="sig_dt"></div>
-    <div class="frow"><label>คำถาม (ถาม …)</label><input type="text" class="ctrl" id="sig_ask" placeholder="เช่น นาฬิกา"></div>
-    <div class="frow"><label>คำตอบ (ตอบ …)</label><input type="text" class="ctrl" id="sig_ans" placeholder="เช่น ผักกาด"></div>
+    <div class="frow"><label>คำถาม</label><input type="text" class="ctrl" id="sig_ask" placeholder="เช่น นาฬิกา"></div>
+    <div class="frow"><label>คำตอบ</label><input type="text" class="ctrl" id="sig_ans" placeholder="เช่น ผักกาด"></div>
     <div class="mact">
       <button class="btn btn-ghost" onclick="closeSigModal()">ยกเลิก</button>
       <button class="btn btn-gold" onclick="saveSig()">💾 บันทึก</button>
@@ -330,21 +335,16 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
     </div>
   </div>
 </div>
-
-<!-- Add person modal -->
 <div class="overlay" id="addPModal" onclick="if(event.target===this)closeAddP()">
   <div class="modal">
     <button class="mcl" onclick="closeAddP()">✕</button>
     <div class="modal-title">➕ เพิ่มบุคคล</div>
-    <div class="frow"><label>ยอด (เช่น กองร้อย, ขส., ยุทธการ)</label><input type="text" class="ctrl" id="ap_yot" placeholder="ยอด"></div>
+    <div class="frow"><label>ยอด</label><input type="text" class="ctrl" id="ap_yot" placeholder="ยอด"></div>
     <div class="frow"><label>รุ่น</label><input type="text" class="ctrl" id="ap_gen" placeholder="67/1"></div>
     <div class="frow"><label>ชื่อ</label><input type="text" class="ctrl" id="ap_name" placeholder="ชื่อจริง"></div>
     <div class="frow"><label>นามสกุล</label><input type="text" class="ctrl" id="ap_sn" placeholder="นามสกุล"></div>
     <div class="frow"><label>คงกอง</label>
-      <select class="ctrl" id="ap_kk">
-        <option>คงกอง</option><option>กลับบ้าน</option><option>ผลัดปลด</option>
-        <option>หน่วยนอก</option><option>ศยพ.</option><option>อื่นๆ</option>
-      </select>
+      <select class="ctrl" id="ap_kk"><option>คงกอง</option><option>กลับบ้าน</option><option>ผลัดปลด</option><option>หน่วยนอก</option><option>ศยพ.</option><option>อื่นๆ</option></select>
     </div>
     <div class="mact">
       <button class="btn btn-ghost" onclick="closeAddP()">ยกเลิก</button>
@@ -353,15 +353,11 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
   </div>
 </div>
 
-<!-- GS Filter Dropdown -->
+<!-- GS Dropdown -->
 <div class="gs-drop" id="gsDrop">
   <div class="gs-drop-sec">
-    <div class="gs-sort-row" onclick="gsDoSort(1)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M11 18h2"/></svg>จัดเรียง A → Z
-    </div>
-    <div class="gs-sort-row" onclick="gsDoSort(-1)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18h18M7 12h10M11 6h2"/></svg>จัดเรียง Z → A
-    </div>
+    <div class="gs-sort-row" onclick="gsDoSort(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M11 18h2"/></svg>จัดเรียง A → Z</div>
+    <div class="gs-sort-row" onclick="gsDoSort(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18h18M7 12h10M11 6h2"/></svg>จัดเรียง Z → A</div>
   </div>
   <div class="gs-drop-sec">
     <div class="gs-sec-title">กรองตามค่า</div>
@@ -375,41 +371,36 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
   </div>
 </div>
 
-<!-- Right-click context menu for blank table -->
+<!-- Context menu -->
 <div class="ctx-menu" id="ctxMenu">
-  <div class="ctx-item" onclick="ctxAct('merge')">⊞ ผสานกับเซลล์ขวา</div>
-  <div class="ctx-item" onclick="ctxAct('unmerge')">⊟ ยกเลิกการผสาน</div>
+  <div class="ctx-label">การเลือก</div>
+  <div class="ctx-item" id="ctx-merge" onclick="ctxDoMerge()"><span class="ctx-ico">⊞</span> ผสานเซลล์ที่เลือก</div>
+  <div class="ctx-item" id="ctx-unmerge" onclick="ctxDoUnmerge()"><span class="ctx-ico">⊟</span> ยกเลิกการผสาน</div>
   <div class="ctx-sep"></div>
-  <div class="ctx-item" onclick="ctxAct('insRowAbove')">↑ แทรกแถวด้านบน</div>
-  <div class="ctx-item" onclick="ctxAct('insRowBelow')">↓ แทรกแถวด้านล่าง</div>
-  <div class="ctx-item" onclick="ctxAct('delRow')" style="color:var(--red)">✕ ลบแถวนี้</div>
+  <div class="ctx-label">แถว</div>
+  <div class="ctx-item" onclick="ctxAct('insRowAbove')"><span class="ctx-ico">↑</span> แทรกแถวด้านบน</div>
+  <div class="ctx-item" onclick="ctxAct('insRowBelow')"><span class="ctx-ico">↓</span> แทรกแถวด้านล่าง</div>
+  <div class="ctx-item danger" onclick="ctxAct('delRow')"><span class="ctx-ico">✕</span> ลบแถวนี้</div>
   <div class="ctx-sep"></div>
-  <div class="ctx-item" onclick="ctxAct('insColLeft')">← แทรกคอลัมน์ซ้าย</div>
-  <div class="ctx-item" onclick="ctxAct('insColRight')">→ แทรกคอลัมน์ขวา</div>
-  <div class="ctx-item" onclick="ctxAct('delCol')" style="color:var(--red)">✕ ลบคอลัมน์นี้</div>
+  <div class="ctx-label">คอลัมน์</div>
+  <div class="ctx-item" onclick="ctxAct('insColLeft')"><span class="ctx-ico">←</span> แทรกคอลัมน์ซ้าย</div>
+  <div class="ctx-item" onclick="ctxAct('insColRight')"><span class="ctx-ico">→</span> แทรกคอลัมน์ขวา</div>
+  <div class="ctx-item danger" onclick="ctxAct('delCol')"><span class="ctx-ico">✕</span> ลบคอลัมน์นี้</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" onclick="ctxAct('clearCell')"><span class="ctx-ico">🗑</span> ล้างเนื้อหา</div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const DUTY_BUILD='2026-04-16-fix-schcontent-redeclare-v2';
-console.info('[duty] build',DUTY_BUILD);
-if(!new URL(location.href).searchParams.get('v')){
-  const u=new URL(location.href);
-  u.searchParams.set('v',DUTY_BUILD);
-  location.replace(u.toString());
-}
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
 //  STORAGE
-// ═══════════════════════════════════════════
-const KD='wn_d7',KS='wn_s7',KP='wn_p7',KB='wn_b7',KSC='wn_sc7';
-const ls  = k=>{ try{ return JSON.parse(localStorage.getItem(k))||{} }catch{ return{} } };
-const lsa = k=>{ try{ return JSON.parse(localStorage.getItem(k))||[] }catch{ return[] } };
-const ss  = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
-
-// Auto-cleanup >2 months
-(()=>{ const cut=new Date(); cut.setMonth(cut.getMonth()-2); [KD,KS,KSC].forEach(k=>{ const d=ls(k);let c=false;Object.keys(d).forEach(i=>{if(new Date(i)<cut){delete d[i];c=true;}});if(c)ss(k,d); }); })();
-
+// ══════════════════════════════════════════
+const KD='wn_d7',KS='wn_s7',KP='wn_p7',KB='wn_b8',KSC='wn_sc7';
+const ls  =k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch{return{}}};
+const lsa =k=>{try{return JSON.parse(localStorage.getItem(k))||[]}catch{return[]}};
+const ss  =(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+(()=>{const cut=new Date();cut.setMonth(cut.getMonth()-2);[KD,KS,KSC].forEach(k=>{const d=ls(k);let c=false;Object.keys(d).forEach(i=>{if(new Date(i)<cut){delete d[i];c=true;}});if(c)ss(k,d);});})();
 const getDuties=iso=>(ls(KD)[iso]||[]);
 const setDuties=(iso,a)=>{const d=ls(KD);d[iso]=a;ss(KD,d);};
 const addDuty=(iso,e)=>{const a=getDuties(iso),uid=Date.now()+'r'+Math.random().toString(36).slice(2,5);a.push({...e,uid});setDuties(iso,a);return uid;};
@@ -420,9 +411,9 @@ const setSig=(iso,ask,ans)=>{const s=ls(KS);s[iso]={ask,ans};ss(KS,s);};
 const getSCO=iso=>(ls(KSC)[iso]||{});
 const setSCO=(iso,data)=>{const d=ls(KSC);d[iso]=data;ss(KSC,d);};
 
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
 //  CONSTANTS
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
 const ZONE_NAMES={A:'เวรรักษาการหน้า บก.พัน.2',B:'เวรช่องทาง เข้า',D:'เวรช่องทาง ออก'};
 const ZONES=['A','B','D'];
 const SHIFTS={
@@ -432,8 +423,10 @@ const SHIFTS={
 };
 const KNOWN={
   '2026-04-10':{A:[{dn:'นันทิพัฒน์',nn:'สมเพ็ชร'},{dn:'อาทิตย์',nn:'วันหนา'},{dn:'วรเทพ',nn:'สอนพงษ์'}],B:[{dn:'ภานุพงษ์',nn:'แฉล้มกลาง'},{dn:'พงศพัศ',nn:'อามีน'},{dn:'ธนพล',nn:'แก้วสุขใส'}],D:[{dn:'ไกรสร',nn:'งอกผล'},{dn:'วายุภักดิ์',nn:'หูไธสง'},{dn:'คุณาธิป',nn:'มีทอง'}],sig:{ask:'นาฬิกา',ans:'ผักกาด'}},
-  '2026-04-11':{A:[{dn:'นันทิพัฒน์',nn:'สมเพ็ชร'},{dn:'อภิสิทธิ์',nn:'คำหงษา'},{dn:'เกริกพล',nn:'เสิกกัญญา'}],B:[{dn:'ไกรสร',nn:'งอกผล'},{dn:'สุธรรม',nn:'พบที่พึ่ง'},{dn:'งามทอง',nn:'สิงห์อุดม'}],D:[{dn:'ภานุพงศ์',nn:'แฉล้มกลาง'},{dn:'ธรรมสา',nn:'ชีพมูลน้อย'},{dn:'ฉาบทับทิม',nn:'นาราศรี'}],sig:{ask:'หนองคาย',ans:'ไข่ต้ม'}}
+  '2026-04-11':{A:[{dn:'นันทิพัฒน์',nn:'สมเพ็ชร'},{dn:'อภิสิทธิ์',nn:'คำหงษา'},{dn:'เกริกพล',nn:'เสิกกัญญา'}],B:[{dn:'ไกรสร',nn:'งอกผล'},{dn:'สุธรรม',nn:'พบที่พึ่ง'},{dn:'งามทอง',nn:'สิงห์อุดม'}],D:[{dn:'ภานุพงศ์',nn:'แฉล้มกลาง'},{dn:'ธรรมสา',nn:'ชีพมูลน้อย'},{dn:'ฉาบทับทิม',nn:'นาราศรี'}],sig:{ask:'หนองคาย',ans:'ไข่ต้ม'}},
+  '2026-04-16':{A:[{dn:'คุณาธิป มีทอง',nn:''},{dn:'ไกรสร งอกผล',nn:''},{dn:'พงศ์ปณต วงศ์ศรีพรม',nn:''}],B:[{dn:'ธนพล แก้วสุขใส',nn:''},{dn:'รหัสลับ ธรรมสา',nn:''},{dn:'อภิสิทธิ์ เรืองศรี',nn:''}],D:[{dn:'ปิยะรัตณ์ ฉาบทับทิม',nn:''},{dn:'พีรยุทธ ลงสุวรรณ',nn:''},{dn:'นันทิพัฒน์ สมเพ็ชร',nn:''}],sig:{ask:'',ans:''}}
 };
+const MAIN_STORAGE_KEY='soldier_app_v1';
 const BP_RAW=[
   {yot:'กองร้อย',gen:'64/1',name:'วงศกร',surname:'งามทอง',kk:'คงกอง'},
   {yot:'กองร้อย',gen:'66/2',name:'สิทธิกร',surname:'ชื่นเย็น',kk:'คงกอง'},
@@ -471,79 +464,49 @@ const BP_RAW=[
   {yot:'บก.กรม',gen:'68/1',name:'วิทยา',surname:'นาราศรี',kk:'คงกอง'},
   {yot:'ร้านก๋วยเตี๋ยว',gen:'68/1',name:'พงศพัศ',surname:'อามีน',kk:'คงกอง'},
 ];
-const MAIN_STORAGE_KEY='soldier_app_v1';
-const BPm=new Map(); BP_RAW.forEach(p=>{const k=p.name+p.surname;if(!BPm.has(k))BPm.set(k,p);});
+const BPm=new Map();BP_RAW.forEach(p=>{const k=p.name+'|'+p.surname;if(!BPm.has(k))BPm.set(k,p);});
 const BP_FALLBACK=Array.from(BPm.values());
-
-function loadPeopleFromMainPage(){
+function loadPeopleFromMain(){
   try{
-    const raw=localStorage.getItem(MAIN_STORAGE_KEY);
-    if(!raw)return [];
-    const arr=JSON.parse(raw);
-    if(!Array.isArray(arr))return [];
-
+    const raw=localStorage.getItem(MAIN_STORAGE_KEY);if(!raw)return[];
+    const arr=JSON.parse(raw);if(!Array.isArray(arr))return[];
     const dedup=new Map();
     arr.forEach(s=>{
-      if(!s||typeof s!=='object')return;
-
       const name=(s.name||s.fname||'').toString().trim();
       const surname=(s.surname||s.lname||'').toString().trim();
       if(!name)return;
-
       const key=name+'|'+surname;
       if(dedup.has(key))return;
-
-      dedup.set(key,{
-        yot:(s.yot||s.rank||'').toString().trim(),
-        gen:(s.gen||s.batch||'').toString().trim(),
-        name,
-        surname,
-        kk:(s.kk||s.kong_kong||'คงกอง').toString().trim()||'คงกอง'
-      });
+      dedup.set(key,{yot:(s.yot||s.rank||'').toString().trim(),gen:(s.gen||'').toString().trim(),name,surname,kk:(s.kk||s.kong_kong||'คงกอง').toString().trim()||'คงกอง'});
     });
-
     return Array.from(dedup.values());
-  }catch{
-    return [];
-  }
+  }catch{return[];}
 }
-
-const BP=(()=>{
-  const merged=new Map();
-  BP_FALLBACK.forEach(p=>merged.set(p.name+'|'+p.surname,p));
-  loadPeopleFromMainPage().forEach(p=>merged.set(p.name+'|'+p.surname,p));
-  return Array.from(merged.values());
-})();
+const BP=(()=>{const m=new Map();BP_FALLBACK.forEach(p=>m.set(p.name+'|'+p.surname,p));loadPeopleFromMain().forEach(p=>m.set(p.name+'|'+p.surname,p));return Array.from(m.values());})();
 const allPeople=()=>{const ex=lsa(KP),ks=new Set(BP.map(p=>p.name+p.surname)),m=[...BP];ex.forEach(p=>{if(!ks.has(p.name+p.surname)){m.push(p);ks.add(p.name+p.surname);}});return m;};
 const EX={'วงศกร งามทอง':{'2':'เข้า','5':'เข้า','8':'เข้า'},'สิทธิกร ชื่นเย็น':{'2':'เข้า','5':'เข้า'},'คุณาธิป มีทอง':{'1':'ควง','3':'เข้า','6':'ควง'},'ไกรสร งอกผล':{'1':'ควง','2':'ควง','4':'เข้า','5':'เข้า','7':'เข้า','8':'เข้า'},'พงศ์ปณต วงศ์ศรีพรม':{'1':'เข้า','3':'ควง','6':'เข้า'},'ธนพล แก้วสุขใส':{'1':'เข้า','3':'เข้า','6':'ควง'},'พงศ์ภรณ์ คงบุรี':{'4':'เข้า','7':'ควง'},'สัญญา สีสาพุธ':{'2':'ควง','5':'เข้า','8':'เข้า'},'สุทิน สรสิงห์':{'2':'ควง','4':'ควง','8':'ควง'},'โชคอนันต์ ชมภูแสง':{'3':'ควง','7':'เข้า'},'ธนากรณ์ โพธิ์แก้ว':{'4':'เข้า','8':'ควง'},'รหัสลับ ธรรมสา':{'2':'ควง','4':'ควง','8':'เข้า'},'ธีระวัฒน์ นวนสาร':{'3':'ควง','7':'เข้า'},'วันชนะ สุธรรม':{'2':'ควง','3':'ควง','4':'ควง','5':'ควง','7':'ควง','8':'ควง'},'นัทธพร วงค์กระโซ่':{'6':'ควง'},'อันวา โยธะวงษ์':{'2':'เข้า','5':'เข้า'},'ธัชรัฏฐ์ สิงห์อุดม':{'1':'ควง'},'ศิโรดม ทอนเทพ':{'7':'ควง'},'อภินันท์ ดีรักษา':{'6':'เข้า','8':'ควง'},'ดุสิต อุบลชัย':{'1':'ควง','2':'ควง','3':'ควง','6':'ควง'},'ทัตธินีกรณ์ ชีพมูลน้อย':{'6':'ควง'},'ภานุพงศ์ แฉล้มกลาง':{'8':'ควง'},'วรเทพ สอนพงษ์':{'1':'ควง','3':'ควง','4':'ควง','5':'เข้า','7':'เข้า'},'อาทิตย์ วันหนา':{'5':'ควง','8':'ควง'}};
 
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
 //  HELPERS
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
 const TM=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const thDate=iso=>{const d=new Date(iso);return`${d.getDate()} ${TM[d.getMonth()]} ${d.getFullYear()+543}`;};
 const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const toast=(m,ms=2200)=>{const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),ms);};
-// *** Req 2: always use today's actual date ***
-const realToday=()=>{const d=new Date();const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return`${y}-${m}-${dd}`;};
-
+const realToday=()=>{const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
 let curISO='';
 
-// ═══════════════════════════════════════════
-//  SCHEDULE
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
+//  SCHEDULE (main table)
+// ══════════════════════════════════════════
 function getSchData(iso){
-  const base=KNOWN[iso]||null;
-  const ov=getSCO(iso);
-  const duties=getDuties(iso);
+  const base=KNOWN[iso]||null;const ov=getSCO(iso);const duties=getDuties(iso);
   const rMap={};
   duties.forEach(e=>{if(e.zone&&e.shiftId){if(!rMap[e.shiftId])rMap[e.shiftId]=[];rMap[e.shiftId].push(e.name+(e.surname?' '+e.surname:''));}});
   const res={};
   ZONES.forEach(z=>{
     res[z]=SHIFTS[z].map((sh,i)=>{
-      const br=base?base[z][i]:{dn:'',nn:''};
-      const uov=ov[sh.id]||{};
-      const rn=rMap[sh.id]||[];
+      const br=base?base[z][i]:{dn:'',nn:''};const uov=ov[sh.id]||{};const rn=rMap[sh.id]||[];
       const dn=uov.dn!==undefined?uov.dn:(rn[0]||br.dn||'');
       const nn=uov.nn!==undefined?uov.nn:(rn[1]||br.nn||'');
       return{id:sh.id,dt:sh.dt,nt:sh.nt,dn,nn};
@@ -554,27 +517,8 @@ function getSchData(iso){
   return res;
 }
 
-function ensureSchContentEl(){
-  let contentEl=document.getElementById('schContent');
-  if(contentEl)return contentEl;
-
-  let capEl=document.getElementById('schCap');
-  const toolbar=document.querySelector('#pg1 .card .card-body .toolbar');
-  const host=toolbar?toolbar.parentElement:document.querySelector('#pg1 .card .card-body');
-  if(!host)return null;
-
-  if(!capEl){
-    capEl=document.createElement('div');
-    capEl.id='schCap';
-    capEl.className='sch-wrap';
-    host.appendChild(capEl);
-  }
-
-  contentEl=document.createElement('div');
-  contentEl.id='schContent';
-  capEl.appendChild(contentEl);
-  return contentEl;
-}
+// Main schedule column widths (stored per-session only)
+const schColW={zone:54,id:50,time1:112,time2:112,name:220};
 
 function renderSch(){
   const iso=curISO;if(!iso)return;
@@ -582,316 +526,448 @@ function renderSch(){
   document.getElementById('pg1Label').textContent=title;
   document.getElementById('dListTitle').textContent=`รายชื่อเข้าเวร วันที่ ${thDate(iso)}`;
   const sched=getSchData(iso);
-  let html=`<table class="st"><colgroup><col class="col-zone"><col class="col-id"><col class="col-time"><col class="col-time"><col class="col-name"></colgroup>
-  <tr class="tr-ttl"><td colspan="5">${title}</td></tr>`;
+  let html=`<table class="st" id="schTable">
+  <colgroup>
+    <col id="sc0" style="width:${schColW.zone}px">
+    <col id="sc1" style="width:${schColW.id}px">
+    <col id="sc2" style="width:${schColW.time1}px">
+    <col id="sc3" style="width:${schColW.time2}px">
+    <col id="sc4">
+  </colgroup>
+  <tr class="tr-ttl"><td colspan="5" style="position:relative">${title}<div class="col-resizer" data-col="0" title="ลากเพื่อปรับความกว้าง"></div></td></tr>`;
   ZONES.forEach(z=>{
     const rows=sched[z];
-    html+=`<tr><td class="td-zone" rowspan="${rows.length+1}">${z}</td><td colspan="4" class="td-zone-name">${ZONE_NAMES[z]}</td></tr>`;
+    html+=`<tr><td class="td-zone" rowspan="${rows.length+1}" style="position:relative">${z}<div class="col-resizer" data-col="0"></div></td><td colspan="4" class="td-zone-name" style="position:relative">${ZONE_NAMES[z]}</td></tr>`;
     rows.forEach(sh=>{
-      // Show "ชื่อ นามสกุล" as full name in one cell, display dn (day-name) which should include surname
       const disp=sh.dn||'—';
       html+=`<tr>
-        <td class="td-sid">${sh.id}</td>
-        <td class="td-time">${sh.dt}</td>
-        <td class="td-time">${sh.nt}</td>
+        <td class="td-sid" style="position:relative">${sh.id}<div class="col-resizer" data-col="1"></div></td>
+        <td class="td-time" style="position:relative">${sh.dt}<div class="col-resizer" data-col="2"></div></td>
+        <td class="td-time" style="position:relative">${sh.nt}<div class="col-resizer" data-col="3"></div></td>
         <td class="td-name${sh.dn?' has-name':''}" onclick="editSchName('${iso}','${z}','${sh.id}')" title="คลิกแก้ไข">${disp}</td>
       </tr>`;
     });
   });
   const sig=sched.sig;
-  html+=`<tr class="tr-sig"><td colspan="5" style="text-align:left">
-    สัญญาณผ่าน &nbsp; ถาม <span class="kw">${sig.ask||'—'}</span> &nbsp; ตอบ <span class="kw">${sig.ans||'—'}</span>
-  </td></tr></table>`;
-  const schEl=ensureSchContentEl();
-  if(!schEl){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
-  schEl.innerHTML=html;
+  html+=`<tr class="tr-sig"><td colspan="5" style="text-align:left">สัญญาณผ่าน &nbsp; ถาม <span class="kw">${sig.ask||'—'}</span> &nbsp; ตอบ <span class="kw">${sig.ans||'—'}</span></td></tr></table>`;
+  document.getElementById('schContent').innerHTML=html;
+  initSchResizers();
   renderDList(iso);
 }
 
-function editSchName(iso,z,shiftId){
-  const sched=getSchData(iso);
-  const sh=sched[z].find(s=>s.id===shiftId);
-  const ov=getSCO(iso);
-  // Single prompt: full name (ชื่อ นามสกุล) for day slot
-  const dn=prompt(`ชื่อ-นามสกุล กลางวัน [${shiftId}]:`,sh.dn||'');
-  if(dn===null)return;
-  const nn=prompt(`ชื่อ-นามสกุล กลางคืน [${shiftId}]:`,sh.nn||'');
-  if(nn===null)return;
-  if(!ov[shiftId])ov[shiftId]={};
-  ov[shiftId].dn=dn;ov[shiftId].nn=nn;
-  setSCO(iso,ov);renderSch();toast('✅ แก้ไขแล้ว');
+function initSchResizers(){
+  document.querySelectorAll('#schTable .col-resizer').forEach(el=>{
+    let startX,startW,colIdx;
+    el.addEventListener('mousedown',e=>{
+      e.preventDefault();e.stopPropagation();
+      colIdx=parseInt(el.dataset.col);
+      startX=e.clientX;
+      const cols=['zone','id','time1','time2','name'];
+      startW=schColW[cols[colIdx]];
+      el.classList.add('active');
+      const onMove=ev=>{
+        const dx=ev.clientX-startX;
+        const nw=Math.max(40,startW+dx);
+        const key=cols[colIdx];
+        schColW[key]=nw;
+        const colEl=document.getElementById('sc'+colIdx);
+        if(colEl)colEl.style.width=nw+'px';
+      };
+      const onUp=()=>{el.classList.remove('active');document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);};
+      document.addEventListener('mousemove',onMove);
+      document.addEventListener('mouseup',onUp);
+    });
+  });
 }
 
+function editSchName(iso,z,shiftId){
+  const sched=getSchData(iso);const sh=sched[z].find(s=>s.id===shiftId);const ov=getSCO(iso);
+  const dn=prompt(`ชื่อ-นามสกุล กลางวัน [${shiftId}]:`,sh.dn||'');if(dn===null)return;
+  const nn=prompt(`ชื่อ-นามสกุล กลางคืน [${shiftId}]:`,sh.nn||'');if(nn===null)return;
+  if(!ov[shiftId])ov[shiftId]={};ov[shiftId].dn=dn;ov[shiftId].nn=nn;
+  setSCO(iso,ov);renderSch();toast('✅ แก้ไขแล้ว');
+}
 function onDateChange(){curISO=document.getElementById('vDate').value;renderSch();renderBlankTable();}
 const goToday=()=>{const t=realToday();document.getElementById('vDate').value=t;curISO=t;renderSch();renderBlankTable();};
 
 function renderDList(iso){
   const all=allDutiesForDate(iso),dl=document.getElementById('dList');
   if(!all.length){dl.innerHTML='<div style="color:#ccc;text-align:center;padding:14px;font-size:.84rem">ไม่มีข้อมูลเวร</div>';return;}
-  dl.innerHTML=all.map(e=>`
-    <div class="duty-item">
-      <span class="badge bdg-z">${e.zone||'—'}</span>
-      <span class="badge bdg-t">${e.shiftId||e.time||'—'}</span>
-      <span style="font-weight:600;flex:1">${e.name}${e.surname?' '+e.surname:''}</span>
-      <span class="badge ${e.type==='เข้า'?'bdg-in':'bdg-kh'}">${e.type}</span>
-      ${e.from==='user'?`<button class="btn btn-red btn-sm" onclick="delUD('${iso}','${e.uid}')" style="padding:3px 7px">🗑</button>`:''}
-    </div>`).join('');
+  dl.innerHTML=all.map(e=>`<div class="duty-item"><span class="badge bdg-z">${e.zone||'—'}</span><span class="badge bdg-t">${e.shiftId||'—'}</span><span style="font-weight:600;flex:1">${e.name}${e.surname?' '+e.surname:''}</span><span class="badge ${e.type==='เข้า'?'bdg-in':'bdg-kh'}">${e.type}</span>${e.from==='user'?`<button class="btn btn-red btn-sm" onclick="delUD('${iso}','${e.uid}')" style="padding:3px 7px">🗑</button>`:''}</div>`).join('');
 }
-
 function allDutiesForDate(iso){
   const d=new Date(iso),isApr=(d.getFullYear()===2026&&d.getMonth()===3),ds=String(d.getDate()),out=[];
-  if(isApr)Object.keys(EX).forEach(fn=>{
-    const t=EX[fn][ds];if(!t)return;
-    const p=fn.split(' ');
-    out.push({uid:'ex_'+fn+ds,name:p[0],surname:p.slice(1).join(' '),zone:'—',shiftId:'—',time:'—',type:t,from:'excel'});
-  });
-  getDuties(iso).forEach(e=>out.push({...e,from:'user'}));
-  return out;
+  if(isApr)Object.keys(EX).forEach(fn=>{const t=EX[fn][ds];if(!t)return;const p=fn.split(' ');out.push({uid:'ex_'+fn+ds,name:p[0],surname:p.slice(1).join(' '),zone:'—',shiftId:'—',type:t,from:'excel'});});
+  getDuties(iso).forEach(e=>out.push({...e,from:'user'}));return out;
 }
 const delUD=(iso,uid)=>{if(!confirm('ลบ?'))return;remDuty(iso,uid);renderDList(iso);renderSch();renderRoster();toast('🗑 ลบแล้ว');};
 
 function copyImg(elId){
-  const el=document.getElementById(elId);
-  if(!el){toast('⚠️ ไม่พบพื้นที่ที่ต้องการคัดลอก');return;}
-
+  const el=document.getElementById(elId);if(!el){toast('⚠️ ไม่พบพื้นที่');return;}
   const run=async()=>{
     let target=el,cleanup=null;
-
-    // สำหรับตารางเวร: จับภาพในสัดส่วนคงที่ (คล้ายไฟล์ตัวอย่าง) ไม่ให้ภาพยืดเต็มจอ
     if(elId==='schCap'){
       const host=document.createElement('div');
-      host.style.position='fixed';
-      host.style.left='-10000px';
-      host.style.top='0';
-      host.style.background='#fff';
-      host.style.padding='0';
-      host.style.margin='0';
-      host.style.width='960px';
-
-      const clone=el.cloneNode(true);
-      clone.style.width='960px';
-      clone.style.maxWidth='960px';
-      clone.style.overflow='visible';
-      clone.querySelectorAll('table').forEach(t=>{t.style.width='100%';t.style.minWidth='960px';});
-
-      host.appendChild(clone);
-      document.body.appendChild(host);
-      target=clone;
-      cleanup=()=>host.remove();
+      host.style.cssText='position:fixed;left:-10000px;top:0;background:#fff;width:960px';
+      const clone=el.cloneNode(true);clone.style.width='960px';
+      host.appendChild(clone);document.body.appendChild(host);
+      target=clone;cleanup=()=>host.remove();
     }
-
     try{
-      const c=await html2canvas(target,{backgroundColor:'#ffffff',scale:2,useCORS:true});
-      try{
-        await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));
-        toast('📋 คัดลอกรูปแล้ว!');
-      }catch{
-        const a=document.createElement('a');
-        a.download='ตารางเวร.png';
-        a.href=c.toDataURL();
-        a.click();
-        toast('📷 บันทึกรูปแทน');
-      }
-    }finally{
-      if(cleanup)cleanup();
-    }
+      const c=await html2canvas(target,{backgroundColor:'#fff',scale:2,useCORS:true});
+      try{await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));toast('📋 คัดลอกรูปแล้ว!');}
+      catch{const a=document.createElement('a');a.download='ตารางเวร.png';a.href=c.toDataURL();a.click();toast('📷 บันทึกรูปแทน');}
+    }finally{if(cleanup)cleanup();}
   };
-
-  if(typeof html2canvas==='undefined'){
-    const s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    s.onload=()=>run().catch(()=>toast('⚠️ ไม่สามารถสร้างรูปได้'));
-    s.onerror=()=>toast('⚠️ โหลดเครื่องมือคัดลอกรูปไม่สำเร็จ');
-    document.head.appendChild(s);
-  }else{
-    run().catch(()=>toast('⚠️ ไม่สามารถสร้างรูปได้'));
-  }
+  if(typeof html2canvas==='undefined'){const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=()=>run();document.head.appendChild(s);}else run();
 }
 
-
-// ═══════════════════════════════════════════
-//  BLANK TABLE — free-form spreadsheet
-//  Data: BL[iso] = { rows: [ [ {v,cs,rs,hidden}, ... ], ... ] }
-//  cs = colspan, rs = rowspan (for merge), hidden = merged-away
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
+//  BLANK TABLE — Excel-like
+//  Data: BL[iso].rows = [[{v,cs,rs,hidden,bold,red,center,style}, ...], ...]
+//  colWidths: BL[iso].colW = [w, w, ...]
+// ══════════════════════════════════════════
 let BL=ls(KB);
 const saveBL=()=>ss(KB,BL);
-let ctxR=-1,ctxC=-1;   // right-click target cell position
 
+// Selection state
+let selR1=-1,selC1=-1,selR2=-1,selC2=-1; // selection box (raw indices)
+let isSelecting=false;
+let activeR=-1,activeC=-1; // active editing cell
+
+function cell(v='',cs=1,rs=1,bold=false,red=false,center=true,style=''){
+  return{v,cs,rs,hidden:false,bold,red,center,style};
+}
 function defaultBlankData(iso){
-  // Build like the image: title row, 3 zone sections (3 shifts each), signal row
-  // Each row = array of cell objects: {v:'', cs:1, rs:1, hidden:false}
-  const cell=(v='',cs=1,rs=1,bold=false,red=false)=>({v,cs,rs,hidden:false,bold,red});
   const rows=[];
-  // Title
-  rows.push([cell(`เวร รร.นกก. วันที่ ${thDate(iso)}`,5,1,false,false)]);
+  rows.push([cell(`เวร รร.นกก. วันที่ ${thDate(iso)}`,5,1,false,false,true,'title-style')]);
   ZONES.forEach(z=>{
-    // Zone header row
-    rows.push([cell(z,1,4,true,false),cell(ZONE_NAMES[z],4,1,true,false)]);
-    // 3 shifts
-    SHIFTS[z].forEach(sh=>{
-      rows.push([cell(sh.id,1,1,false,false),cell(sh.dt,1,1,false,false),cell(sh.nt,1,1,false,false),cell('',1,1,false,false)]);
-    });
+    rows.push([cell(z,1,4,true,false,true,'zone-style'),cell(ZONE_NAMES[z],4,1,true,false,true,'zone-name-style')]);
+    SHIFTS[z].forEach(sh=>{rows.push([cell(sh.id,1,1,false,false,true,'title-style'),cell(sh.dt,1,1,false,false,true,''),cell(sh.nt,1,1,false,false,true,''),cell('',1,1,false,false,false,'')]);});
   });
-  // Signal row
-  rows.push([cell('สัญญาณผ่าน  ถาม',1,1,false,false),cell('',2,1,false,true),cell('ตอบ',1,1,false,false),cell('',1,1,false,true)]);
-  return {rows};
+  rows.push([cell('สัญญาณผ่าน  ถาม',2,1,false,false,false,'sig-style'),cell('',1,1,false,true,true,'sig-style'),cell('ตอบ',1,1,false,false,false,'sig-style'),cell('',1,1,false,true,true,'sig-style')]);
+  const numCols=5;
+  const colW=Array(numCols).fill(120);colW[0]=54;colW[1]=50;
+  return{rows,colW};
 }
-
-function getBlank(iso){
-  if(!BL[iso]){BL[iso]=defaultBlankData(iso);saveBL();}
-  return BL[iso];
-}
+function getBlank(iso){if(!BL[iso]){BL[iso]=defaultBlankData(iso);saveBL();}return BL[iso];}
+function numCols(b){return Math.max(...b.rows.map(r=>r.length));}
 
 function renderBlankTable(){
   const iso=curISO||realToday();
   const b=getBlank(iso);
-  const rows=b.rows;
-  const numCols=Math.max(...rows.map(r=>r.reduce((s,c)=>s+(c.hidden?0:c.cs),0)));
+  const nr=b.rows.length;
+  const nc=numCols(b);
+  if(!b.colW||b.colW.length<nc){b.colW=b.colW||[];while(b.colW.length<nc)b.colW.push(120);}
 
-  let html=`<table class="bl-tbl">`;
-  rows.forEach((row,ri)=>{
+  let html=`<table class="bl-tbl" id="blTbl"><thead><tr>`;
+  html+=`<th class="bl-row-h" style="width:36px"></th>`;
+  for(let c=0;c<nc;c++){
+    const label=String.fromCharCode(65+c);
+    html+=`<th class="bl-th" id="bth${c}" style="width:${b.colW[c]}px"><span class="th-txt">${label}</span><div class="th-resizer" data-col="${c}"></div></th>`;
+  }
+  html+=`</tr></thead><tbody>`;
+
+  b.rows.forEach((row,ri)=>{
     html+=`<tr>`;
+    html+=`<th class="bl-row-h" id="brh${ri}">${ri+1}</th>`;
     let ci=0;
-    row.forEach((cell,rawCi)=>{
-      if(cell.hidden){ci++;return;}
-      const cs=cell.cs||1,rs=cell.rs||1;
-      const csAttr=cs>1?` colspan="${cs}"`:'';
-      const rsAttr=rs>1?` rowspan="${rs}"`:'';
-      const bold=cell.bold?'bold ':'';
-      const red=cell.red?'red-kw ':'';
-      const isSig=(ri===rows.length-1);
-      const bgStyle=isSig?'background:var(--signal-bg)':'';
-      html+=`<td${csAttr}${rsAttr} style="${bgStyle}" data-r="${ri}" data-c="${rawCi}"
-        oncontextmenu="openCtxMenu(event,${ri},${rawCi});return false">
-        <textarea class="bl-cell-inp ${bold}${red}" rows="1"
-          oninput="blCellInput(this,${ri},${rawCi})"
-          onkeydown="blCellKey(event,${ri},${rawCi})"
-          style="height:${rs>1?rs*38:38}px"
-        >${esc(cell.v||'')}</textarea></td>`;
+    row.forEach((cl,rawCi)=>{
+      if(cl.hidden){ci+=cl.cs||1;return;}
+      const cs=cl.cs||1,rs=cl.rs||1;
+      const csA=cs>1?` colspan="${cs}"`:'';
+      const rsA=rs>1?` rowspan="${rs}"`:'';
+      const cls=['bl-cell',cl.style||'',cl.bold?'bold-cell':'',cl.red?'red-cell':'',cl.center?'center-cell':''].filter(Boolean).join(' ');
+      html+=`<td${csA}${rsA} class="${cls}" data-r="${ri}" data-c="${rawCi}" data-ci="${ci}"
+        onmousedown="blMouseDown(event,${ri},${rawCi})"
+        onmouseenter="blMouseEnter(event,${ri},${rawCi})"
+        ondblclick="blDblClick(event,${ri},${rawCi})"
+        oncontextmenu="blCtxMenu(event,${ri},${rawCi});return false">
+        <textarea class="bl-cell-inp" rows="1"
+          data-r="${ri}" data-c="${rawCi}"
+          oninput="blInput(this,${ri},${rawCi})"
+          onkeydown="blKey(event,${ri},${rawCi})"
+          onfocus="blFocus(${ri},${rawCi})"
+          readonly
+        >${esc(cl.v||'')}</textarea></td>`;
       ci+=cs;
     });
     html+=`</tr>`;
   });
-  html+=`</table>`;
+  html+=`</tbody></table>`;
   document.getElementById('blankContent').innerHTML=html;
-  // auto-resize all textareas
-  document.querySelectorAll('.bl-cell-inp').forEach(ta=>{ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';});
+  initBlResizers();
+  updateSelection();
 }
 
-function blCellInput(ta,r,c){
-  const iso=curISO||realToday();
-  const b=getBlank(iso);
-  b.rows[r][c].v=ta.value;
-  saveBL();
+function initBlResizers(){
+  document.querySelectorAll('#blTbl .th-resizer').forEach(el=>{
+    let startX,startW,colIdx;
+    el.addEventListener('mousedown',e=>{
+      e.preventDefault();e.stopPropagation();
+      colIdx=parseInt(el.dataset.col);
+      startX=e.clientX;
+      const iso=curISO||realToday();
+      const b=getBlank(iso);
+      startW=b.colW[colIdx]||120;
+      el.classList.add('dragging');
+      const onMove=ev=>{
+        const nw=Math.max(30,startW+(ev.clientX-startX));
+        b.colW[colIdx]=nw;
+        const thEl=document.getElementById('bth'+colIdx);
+        if(thEl)thEl.style.width=nw+'px';
+      };
+      const onUp=()=>{saveBL();el.classList.remove('dragging');document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);};
+      document.addEventListener('mousemove',onMove);
+      document.addEventListener('mouseup',onUp);
+    });
+  });
+}
+
+// ── Selection ──
+function blMouseDown(e,r,c){
+  if(e.button===2)return; // right click handled separately
+  e.preventDefault();
+  // start selection
+  isSelecting=true;
+  selR1=selR2=r;selC1=selC2=c;
+  activeR=r;activeC=c;
+  updateSelection();
+}
+function blMouseEnter(e,r,c){
+  if(!isSelecting)return;
+  selR2=r;selC2=c;
+  updateSelection();
+}
+document.addEventListener('mouseup',()=>{isSelecting=false;});
+
+function blDblClick(e,r,c){
+  // Enter edit mode
+  const td=document.querySelector(`#blTbl td[data-r="${r}"][data-c="${c}"]`);
+  if(!td)return;
+  const ta=td.querySelector('.bl-cell-inp');
+  if(!ta)return;
+  ta.removeAttribute('readonly');
+  ta.focus();
+  ta.setSelectionRange(ta.value.length,ta.value.length);
+  td.classList.add('active-cell');
+}
+function blFocus(r,c){activeR=r;activeC=c;selR1=selR2=r;selC1=selC2=c;updateSelection();}
+
+function blInput(ta,r,c){
+  const iso=curISO||realToday();const b=getBlank(iso);
+  b.rows[r][c].v=ta.value;saveBL();
   ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
 }
-function blCellKey(e,r,c){
-  // Tab moves right
-  if(e.key==='Tab'){e.preventDefault();const nxt=document.querySelector(`[data-r="${r}"][data-c="${c+1}"] .bl-cell-inp`);if(nxt)nxt.focus();}
+function blKey(e,r,c){
+  const ta=e.target;
+  if(e.key==='Escape'){ta.setAttribute('readonly','');ta.blur();}
+  if(e.key==='Enter'&&!e.shiftKey&&ta.hasAttribute('readonly')){
+    e.preventDefault();blDblClick(e,r,c);return;
+  }
+  if(e.key==='Tab'){e.preventDefault();const iso=curISO||realToday();const b=getBlank(iso);const nc2=numCols(b);const nr=b.rows.length;ta.setAttribute('readonly','');
+    let nr2=r,nc3=c+(e.shiftKey?-1:1);if(nc3>=nc2){nc3=0;nr2++;}if(nc3<0){nc3=nc2-1;nr2--;}
+    if(nr2>=0&&nr2<nr){const next=document.querySelector(`#blTbl td[data-r="${nr2}"][data-c="${nc3}"]`);if(next){selR1=selR2=nr2;selC1=selC2=nc3;activeR=nr2;activeC=nc3;updateSelection();blDblClick(e,nr2,nc3);}}
+  }
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)&&ta.hasAttribute('readonly')){
+    e.preventDefault();const iso=curISO||realToday();const b=getBlank(iso);const nc2=numCols(b);const nr=b.rows.length;
+    let nr2=r,nc3=c;
+    if(e.key==='ArrowUp')nr2--;if(e.key==='ArrowDown')nr2++;
+    if(e.key==='ArrowLeft')nc3--;if(e.key==='ArrowRight')nc3++;
+    nr2=Math.max(0,Math.min(nr-1,nr2));nc3=Math.max(0,Math.min(nc2-1,nc3));
+    selR1=selR2=nr2;selC1=selC2=nc3;activeR=nr2;activeC=nc3;updateSelection();
+    const next=document.querySelector(`#blTbl td[data-r="${nr2}"][data-c="${nc3}"]`);if(next)next.scrollIntoView({block:'nearest'});
+  }
+}
+
+// Normalize selection (ensure r1<=r2, c1<=c2)
+function normSel(){
+  return{r1:Math.min(selR1,selR2),r2:Math.max(selR1,selR2),c1:Math.min(selC1,selC2),c2:Math.max(selC1,selC2)};
+}
+
+function updateSelection(){
+  // Remove old selection classes
+  document.querySelectorAll('#blTbl .selected,.sel-tl,.sel-tr,.sel-bl,.sel-br,.active-cell').forEach(el=>{
+    el.classList.remove('selected','sel-tl','sel-tr','sel-bl','sel-br','active-cell');
+  });
+  document.querySelectorAll('#blTbl .col-sel,.row-sel').forEach(el=>el.classList.remove('col-sel','row-sel'));
+
+  const{r1,r2,c1,c2}=normSel();
+  const iso=curISO||realToday();const b=getBlank(iso);
+
+  // Highlight col headers and row headers
+  for(let c=c1;c<=c2;c++){const th=document.getElementById('bth'+c);if(th)th.classList.add('col-sel');}
+  for(let r=r1;r<=r2;r++){const rh=document.getElementById('brh'+r);if(rh)rh.classList.add('row-sel');}
+
+  // Highlight cells — need to map raw column indices
+  // For each row in selection range, find cells whose raw column is in [c1..c2] (accounting for colspan)
+  document.querySelectorAll('#blTbl td.bl-cell').forEach(td=>{
+    const r=parseInt(td.dataset.r);const rawC=parseInt(td.dataset.c);const ci=parseInt(td.dataset.ci||rawC);
+    if(r<r1||r>r2)return;
+    const cs=(b.rows[r]&&b.rows[r][rawC])?b.rows[r][rawC].cs||1:1;
+    // Cell spans [ci .. ci+cs-1] in visual columns
+    const cellC1=ci,cellC2=ci+cs-1;
+    // Overlaps with [c1..c2]?
+    if(cellC2<c1||cellC1>c2)return;
+    td.classList.add('selected');
+    if(r===r1)td.classList.add('sel-tl');
+    if(r===r2)td.classList.add('sel-bl');
+    if(rawC===c1)td.classList.add('sel-br');
+    if(rawC===c2)td.classList.add('sel-tr');
+  });
+  // Active cell
+  const atd=document.querySelector(`#blTbl td[data-r="${activeR}"][data-c="${activeC}"]`);
+  if(atd)atd.classList.add('active-cell');
+}
+
+// Close any open textarea edit on click outside
+document.addEventListener('mousedown',e=>{
+  if(!e.target.closest('#blTbl')){
+    document.querySelectorAll('#blTbl .bl-cell-inp:not([readonly])').forEach(ta=>{ta.setAttribute('readonly','');});
+    document.querySelectorAll('#blTbl .active-cell').forEach(td=>td.classList.remove('active-cell'));
+  }
+});
+
+// ── Context menu ──
+let ctxTargetR=-1,ctxTargetC=-1;
+function blCtxMenu(e,r,c){
+  e.preventDefault();
+  // If right-click is outside current selection, reset selection to that cell
+  const{r1,r2,c1,c2}=normSel();
+  if(r<r1||r>r2||c<c1||c>c2){selR1=selR2=r;selC1=selC2=c;activeR=r;activeC=c;updateSelection();}
+  ctxTargetR=r;ctxTargetC=c;
+  const menu=document.getElementById('ctxMenu');
+  const{r1:nr1,r2:nr2,c1:nc1,c2:nc2}=normSel();
+  const multiSel=(nr2>nr1||nc2>nc1);
+  // Update merge/unmerge availability
+  const iso=curISO||realToday();const b=getBlank(iso);
+  const cl=b.rows[r]&&b.rows[r][c];
+  const isMerged=cl&&((cl.cs||1)>1||(cl.rs||1)>1);
+  document.getElementById('ctx-merge').classList.toggle('disabled',!multiSel);
+  document.getElementById('ctx-unmerge').classList.toggle('disabled',!isMerged);
+  menu.style.left=Math.min(e.clientX,window.innerWidth-210)+'px';
+  menu.style.top=Math.min(e.clientY,window.innerHeight-320)+'px';
+  menu.classList.add('open');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.ctx-menu'))document.getElementById('ctxMenu').classList.remove('open');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('ctxMenu').classList.remove('open');});
+
+// ── Excel-style merge: merge all cells in selection into top-left ──
+function ctxDoMerge(){
+  document.getElementById('ctxMenu').classList.remove('open');
+  const iso=curISO||realToday();const b=getBlank(iso);
+  const{r1,r2,c1,c2}=normSel();
+  if(r1===r2&&c1===c2){toast('⚠️ เลือกมากกว่า 1 เซลล์เพื่อผสาน');return;}
+
+  // Collect all values from selection, concat to top-left
+  let combined='';
+  for(let r=r1;r<=r2;r++){
+    for(let c=c1;c<=c2;c++){
+      if(b.rows[r]&&b.rows[r][c]&&b.rows[r][c].v)combined+=(combined?'\n':'')+b.rows[r][c].v;
+    }
+  }
+
+  // Set top-left cell with colspan & rowspan
+  const tl=b.rows[r1][c1];
+  tl.v=combined;
+  tl.cs=c2-c1+1;
+  tl.rs=r2-r1+1;
+  tl.hidden=false;
+
+  // Hide all other cells in the range
+  for(let r=r1;r<=r2;r++){
+    for(let c=c1;c<=c2;c++){
+      if(r===r1&&c===c1)continue;
+      if(b.rows[r]&&b.rows[r][c]){b.rows[r][c].hidden=true;b.rows[r][c].cs=1;b.rows[r][c].rs=1;}
+    }
+  }
+  saveBL();renderBlankTable();
+  selR1=selR2=r1;selC1=selC2=c1;updateSelection();
+  toast('✅ ผสานเซลล์แล้ว');
+}
+
+function ctxDoUnmerge(){
+  document.getElementById('ctxMenu').classList.remove('open');
+  const iso=curISO||realToday();const b=getBlank(iso);
+  const{r1}=normSel();
+  const c1=selC1;
+  const cl=b.rows[r1]&&b.rows[r1][c1];
+  if(!cl||(cl.cs||1)===1&&(cl.rs||1)===1){toast('ไม่มีการผสาน');return;}
+  const cs=cl.cs||1,rs=cl.rs||1;
+  cl.cs=1;cl.rs=1;
+  // Unhide hidden cells in range
+  for(let r=r1;r<r1+rs;r++){
+    for(let c=c1;c<c1+cs;c++){
+      if(r===r1&&c===c1)continue;
+      if(b.rows[r]&&b.rows[r][c])b.rows[r][c].hidden=false;
+    }
+  }
+  saveBL();renderBlankTable();toast('✅ ยกเลิกการผสานแล้ว');
+}
+
+function ctxAct(action){
+  document.getElementById('ctxMenu').classList.remove('open');
+  const iso=curISO||realToday();const b=getBlank(iso);
+  const r=ctxTargetR,c=ctxTargetC;
+  const nc=numCols(b);
+
+  if(action==='insRowAbove'){
+    const nr=b.rows[0].length;
+    b.rows.splice(r,0,Array.from({length:nr},()=>cell()));
+    if(b.colW&&b.colW.length<nr)while(b.colW.length<nr)b.colW.push(120);
+    toast('✅ แทรกแถวแล้ว');
+  }else if(action==='insRowBelow'){
+    const nr=b.rows[0].length;
+    b.rows.splice(r+1,0,Array.from({length:nr},()=>cell()));
+    toast('✅ แทรกแถวแล้ว');
+  }else if(action==='delRow'){
+    if(b.rows.length<=1){toast('⚠️ ไม่สามารถลบได้');return;}
+    if(!confirm('ลบแถวนี้?'))return;
+    b.rows.splice(r,1);toast('🗑 ลบแถวแล้ว');
+  }else if(action==='insColLeft'){
+    b.rows.forEach(row=>row.splice(c,0,cell()));
+    b.colW&&b.colW.splice(c,0,120);
+    toast('✅ แทรกคอลัมน์แล้ว');
+  }else if(action==='insColRight'){
+    b.rows.forEach(row=>row.splice(c+1,0,cell()));
+    b.colW&&b.colW.splice(c+1,0,120);
+    toast('✅ แทรกคอลัมน์แล้ว');
+  }else if(action==='delCol'){
+    if(!confirm('ลบคอลัมน์นี้?'))return;
+    b.rows.forEach(row=>{if(c<row.length)row.splice(c,1);});
+    b.colW&&b.colW.splice(c,1);
+    toast('🗑 ลบคอลัมน์แล้ว');
+  }else if(action==='clearCell'){
+    const{r1,r2,c1,c2}=normSel();
+    for(let ri=r1;ri<=r2;ri++)for(let ci2=c1;ci2<=c2;ci2++)if(b.rows[ri]&&b.rows[ri][ci2])b.rows[ri][ci2].v='';
+    toast('🗑 ล้างเนื้อหาแล้ว');
+  }
+  saveBL();renderBlankTable();
 }
 
 function blAddRow(){
-  const iso=curISO||realToday();
-  const b=getBlank(iso);
-  const numCols=b.rows[0].reduce((s,c)=>s+c.cs,0);
-  const newRow=[];for(let i=0;i<numCols;i++)newRow.push({v:'',cs:1,rs:1,hidden:false,bold:false,red:false});
-  // Insert before last row (signal)
-  b.rows.splice(b.rows.length-1,0,newRow);
+  const iso=curISO||realToday();const b=getBlank(iso);
+  const nc=numCols(b);
+  b.rows.splice(b.rows.length-1,0,Array.from({length:nc},()=>cell()));
   saveBL();renderBlankTable();
 }
-
 function blAddCol(){
-  const iso=curISO||realToday();
-  const b=getBlank(iso);
-  b.rows.forEach(row=>{
-    // Add empty cell to each row (before last cell)
-    const lastIdx=row.length-1;
-    row.splice(lastIdx,0,{v:'',cs:1,rs:1,hidden:false,bold:false,red:false});
-  });
+  const iso=curISO||realToday();const b=getBlank(iso);
+  b.rows.forEach(row=>row.push(cell()));
+  if(b.colW)b.colW.push(120);
   saveBL();renderBlankTable();
 }
-
 function clearBlank(){
   const iso=curISO||realToday();
   if(!confirm('ล้างตารางเปล่าสำหรับวันนี้?'))return;
   delete BL[iso];saveBL();renderBlankTable();toast('🗑 ล้างแล้ว');
 }
 
-// ─── Right-click context menu ───
-function openCtxMenu(e,r,c){
-  ctxR=r;ctxC=c;
-  const menu=document.getElementById('ctxMenu');
-  menu.style.left=Math.min(e.clientX,window.innerWidth-190)+'px';
-  menu.style.top=Math.min(e.clientY,window.innerHeight-280)+'px';
-  menu.classList.add('open');
-  e.preventDefault();
-}
-document.addEventListener('click',()=>document.getElementById('ctxMenu').classList.remove('open'));
-document.addEventListener('contextmenu',e=>{if(!e.target.closest('.bl-tbl'))document.getElementById('ctxMenu').classList.remove('open');});
-
-function ctxAct(action){
-  const iso=curISO||realToday();
-  const b=getBlank(iso);
-  const r=ctxR,c=ctxC;
-  document.getElementById('ctxMenu').classList.remove('open');
-
-  if(action==='merge'){
-    // Merge cell at [r][c] with [r][c+1]
-    const row=b.rows[r];
-    if(c<row.length-1&&!row[c+1].hidden){
-      row[c].cs=(row[c].cs||1)+(row[c+1].cs||1);
-      row[c+1].hidden=true;
-      toast('✅ ผสานแล้ว');
-    }else toast('⚠️ ผสานไม่ได้');
-  }
-  else if(action==='unmerge'){
-    const row=b.rows[r];
-    const cell=row[c];
-    if((cell.cs||1)>1){
-      const extra=cell.cs-1;cell.cs=1;
-      // Unhide merged cells
-      for(let i=c+1;i<=c+extra&&i<row.length;i++)row[i].hidden=false;
-      toast('✅ ยกเลิกการผสาน');
-    }else toast('ไม่มีการผสาน');
-  }
-  else if(action==='insRowAbove'){
-    const numCols=b.rows[0].reduce((s,c)=>s+c.cs,0);
-    const newRow=[];for(let i=0;i<numCols;i++)newRow.push({v:'',cs:1,rs:1,hidden:false,bold:false,red:false});
-    b.rows.splice(r,0,newRow);toast('✅ แทรกแถวแล้ว');
-  }
-  else if(action==='insRowBelow'){
-    const numCols=b.rows[0].reduce((s,c)=>s+c.cs,0);
-    const newRow=[];for(let i=0;i<numCols;i++)newRow.push({v:'',cs:1,rs:1,hidden:false,bold:false,red:false});
-    b.rows.splice(r+1,0,newRow);toast('✅ แทรกแถวแล้ว');
-  }
-  else if(action==='delRow'){
-    if(b.rows.length<=2){toast('⚠️ ไม่สามารถลบได้');return;}
-    if(!confirm('ลบแถวนี้?'))return;
-    b.rows.splice(r,1);toast('🗑 ลบแถวแล้ว');
-  }
-  else if(action==='insColLeft'){
-    b.rows.forEach(row=>row.splice(c,0,{v:'',cs:1,rs:1,hidden:false,bold:false,red:false}));
-    toast('✅ แทรกคอลัมน์แล้ว');
-  }
-  else if(action==='insColRight'){
-    b.rows.forEach(row=>row.splice(c+1,0,{v:'',cs:1,rs:1,hidden:false,bold:false,red:false}));
-    toast('✅ แทรกคอลัมน์แล้ว');
-  }
-  else if(action==='delCol'){
-    if(!confirm('ลบคอลัมน์นี้?'))return;
-    b.rows.forEach(row=>{if(c<row.length)row.splice(c,1);});
-    toast('🗑 ลบคอลัมน์แล้ว');
-  }
-  saveBL();renderBlankTable();
-}
-
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
 //  SIGNAL MODAL
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
 function openSigModal(){
-  const iso=curISO||realToday();
-  document.getElementById('sig_dt').value=iso;
+  const iso=curISO||realToday();document.getElementById('sig_dt').value=iso;
   const s=getSig(iso);document.getElementById('sig_ask').value=s.ask;document.getElementById('sig_ans').value=s.ans;
   renderSigList();document.getElementById('sigModal').classList.add('open');
 }
@@ -904,54 +980,34 @@ function saveSig(){
 function renderSigList(){
   const s=ls(KS),keys=Object.keys(s).sort().reverse().slice(0,10),el=document.getElementById('sigList');
   if(!keys.length){el.innerHTML='<div style="color:#ccc;font-size:.78rem">ยังไม่มีข้อมูล</div>';return;}
-  el.innerHTML=keys.map(k=>`
-    <div class="sig-item">
-      <span style="color:#666;min-width:70px;font-size:.74rem">${thDate(k)}</span>
-      <span style="color:var(--navy2);font-weight:600">ถาม: ${s[k].ask}</span>
-      <span style="color:var(--red);font-weight:700">ตอบ: ${s[k].ans}</span>
-      <button class="btn btn-red btn-sm" onclick="delSig('${k}')" style="padding:2px 7px;margin-left:auto">✕</button>
-    </div>`).join('');
+  el.innerHTML=keys.map(k=>`<div class="sig-item"><span style="color:#666;min-width:70px;font-size:.74rem">${thDate(k)}</span><span style="color:var(--navy2);font-weight:600">ถาม: ${s[k].ask}</span><span style="color:var(--red);font-weight:700">ตอบ: ${s[k].ans}</span><button class="btn btn-red btn-sm" onclick="delSig('${k}')" style="padding:2px 7px;margin-left:auto">✕</button></div>`).join('');
 }
 function delSig(k){const s=ls(KS);delete s[k];ss(KS,s);renderSigList();renderSch();}
 
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
 //  ROSTER GRID
-// ═══════════════════════════════════════════
-let sortCol=null,sortDir=1;
+// ══════════════════════════════════════════
+let rosterSortCol=null,rosterSortDir=1;
 const COL_FILTER={yot:null,gen:null,kk:null,name:null};
 const FIXED_COLS=[{key:'yot',label:'ยอด',cls:'c-yot'},{key:'gen',label:'รุ่น',cls:'c-gen'},{key:'name',label:'ชื่อ-นามสกุล',cls:'c-name nc-h'},{key:'kk',label:'คงกอง',cls:'c-kk'}];
-
 function renderRoster(){
   const val=document.getElementById('rMonth').value;
   const[yr,mo]=val.split('-').map(Number);
-  const total=new Date(yr,mo+1,0).getDate();
-  const td=new Date();  // real today
-
+  const total=new Date(yr,mo+1,0).getDate();const td=new Date();
   let people=allPeople();
   FIXED_COLS.forEach(c=>{const f=COL_FILTER[c.key];if(f===null)return;people=people.filter(p=>{const v=c.key==='name'?p.name+' '+p.surname:(p[c.key]||'');return f.has(v);});});
-  if(sortCol){people=[...people].sort((a,b)=>{const av=sortCol==='name'?a.name+' '+a.surname:(a[sortCol]||''),bv=sortCol==='name'?b.name+' '+b.surname:(b[sortCol]||'');return av.localeCompare(bv,'th')*sortDir;});}
-
+  if(rosterSortCol){people=[...people].sort((a,b)=>{const av=rosterSortCol==='name'?a.name+' '+a.surname:(a[rosterSortCol]||''),bv=rosterSortCol==='name'?b.name+' '+b.surname:(b[rosterSortCol]||'');return av.localeCompare(bv,'th')*rosterSortDir;});}
   let h1='';
   FIXED_COLS.forEach(c=>{
-    const isNc=c.cls.includes('nc-h'),hf=COL_FILTER[c.key]!==null,iS=sortCol===c.key;
-    const ic=iS?(sortDir===1?'active-asc':'active-desc'):'';
-    h1+=`<th class="${c.cls}${isNc?' nc-h':''}" style="padding:0">
-      <div class="th-inner" onclick="openGsDrop(event,'${c.key}')">
-        <span class="th-label">${c.label}</span>
-        <span class="th-flt-dot${hf?' on':''}"></span>
-        <span class="th-icon ${ic}"><span class="arr-up"></span><span class="arr-dn"></span></span>
-      </div></th>`;
+    const isNc=c.cls.includes('nc-h'),hf=COL_FILTER[c.key]!==null,iS=rosterSortCol===c.key;
+    const ic=iS?(rosterSortDir===1?'active-asc':'active-desc'):'';
+    h1+=`<th class="${c.cls}${isNc?' nc-h':''}" style="padding:0"><div class="th-inner" onclick="openGsDrop(event,'${c.key}')"><span class="th-label">${c.label}</span><span class="th-flt-dot${hf?' on':''}"></span><span class="th-icon ${ic}"><span class="arr-up"></span><span class="arr-dn"></span></span></div></th>`;
   });
-  for(let d=1;d<=total;d++){
-    const isT=(yr===td.getFullYear()&&mo===td.getMonth()&&d===td.getDate());
-    h1+=`<th class="c-day${isT?' rc-today':''}">${d}</th>`;
-  }
+  for(let d=1;d<=total;d++){const isT=(yr===td.getFullYear()&&mo===td.getMonth()&&d===td.getDate());h1+=`<th class="c-day${isT?' rc-today':''}">${d}</th>`;}
   document.getElementById('rHead1').innerHTML=h1;
-
   let bh='';
   people.forEach(p=>{
     const kkClr=p.kk==='คงกอง'?'#1b5e20':p.kk==='กลับบ้าน'?'#e65100':'#555';
-    // *** Req 1 fix: show full name "ชื่อ นามสกุล" in name cell ***
     const fn=p.name+(p.surname?' '+p.surname:'');
     bh+=`<tr><td class="c-yot-td">${p.yot||''}</td><td class="c-gen-td">${p.gen||''}</td><td class="nc">${fn}</td><td class="c-kk-td" style="color:${kkClr}">${p.kk||''}</td>`;
     for(let d=1;d<=total;d++){
@@ -960,9 +1016,8 @@ function renderRoster(){
       let exT=null;if(yr===2026&&mo===3&&EX[fn])exT=EX[fn][String(d)]||null;
       const uArr=getDuties(iso).filter(e=>e.name===p.name&&e.surname===p.surname);
       const uT=uArr.length?uArr[0].type:null,uid=uArr.length?uArr[0].uid:'';
-      const type=uT||exT;
-      const cls=type==='เข้า'?'rc-in':type==='ควง'?'rc-kh':'';
-      bh+=`<td class="rc ${cls}${isT?' rc-today':''}" onclick="openSP('${iso}','${esc(p.name)}','${esc(p.surname)}','${uid}','${type||''}')" title="${fn} — ${d}/${mo+1}">${type||''}</td>`;
+      const type=uT||exT;const cls=type==='เข้า'?'rc-in':type==='ควง'?'rc-kh':'';
+      bh+=`<td class="rc ${cls}${isT?' rc-today':''}" onclick="openSP('${iso}','${esc(p.name)}','${esc(p.surname)}','${uid}','${type||''}')">${type||''}</td>`;
     }
     bh+='</tr>';
   });
@@ -989,7 +1044,7 @@ function gsSearchV(){const q=document.getElementById('gsSearch').value.toLowerCa
 function gsSelAll(){gsAllVals.forEach(v=>gsTempSel.add(v));buildGsChk();updateGsCnt();}
 function gsClearAll(){gsTempSel.clear();buildGsChk();updateGsCnt();}
 function updateGsCnt(){document.getElementById('gsCount').textContent=`${gsTempSel.size}/${gsAllVals.length}`;}
-function gsDoSort(dir){sortCol=gsCurCol;sortDir=dir;closeGsDrop();renderRoster();}
+function gsDoSort(dir){rosterSortCol=gsCurCol;rosterSortDir=dir;closeGsDrop();renderRoster();}
 function gsApply(){if(gsCurCol){const aS=gsTempSel.size===gsAllVals.length&&gsAllVals.every(v=>gsTempSel.has(v));COL_FILTER[gsCurCol]=aS?null:new Set(gsTempSel);}closeGsDrop();renderRoster();}
 function gsCancel(){closeGsDrop();}
 function closeGsDrop(){document.getElementById('gsDrop').classList.remove('open');gsCurCol=null;}
@@ -1007,12 +1062,11 @@ function saveAddP(){
   closeAddP();renderRoster();toast(`✅ เพิ่ม "${name} ${sn}" แล้ว`);
 }
 
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
 //  SHIFT PICKER
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
 let spCtx=null,spSel={zone:null,shiftId:null},spType='เข้า';
 const getOcc=iso=>{const occ={};getDuties(iso).forEach(e=>{if(e.zone&&e.shiftId)occ[e.shiftId]={name:e.name,surname:e.surname,uid:e.uid};});return occ;};
-
 function openSP(iso,name,surname,uid,curType){
   spCtx={iso,name,surname,uid,curType};spSel={zone:null,shiftId:null};spType=curType||'เข้า';
   const d=new Date(iso);
@@ -1027,14 +1081,10 @@ function buildSPBody(){
   ZONES.forEach(z=>{
     html+=`<div class="sp-zone-ttl">${z} – ${ZONE_NAMES[z]}</div><div class="sp-grid">`;
     SHIFTS[z].forEach(sh=>{
-      const row=sched[z].find(s=>s.id===sh.id)||{};
-      const isSel=(spSel.zone===z&&spSel.shiftId===sh.id);
+      const row=sched[z].find(s=>s.id===sh.id)||{};const isSel=(spSel.zone===z&&spSel.shiftId===sh.id);
       const ocp=occ[sh.id];const isOwn=ocp&&ocp.uid===spCtx?.uid;const isBusy=ocp&&!isOwn;
-      if(isBusy){
-        html+=`<button class="sp-btn sp-busy" disabled><div style="font-weight:700">${sh.id}</div><div style="font-size:.68rem">${sh.dt}</div><div class="sp-busy-lbl">⛔ ไม่ว่าง</div><div style="font-size:.68rem;color:#c62828">${ocp.name}</div></button>`;
-      }else{
-        html+=`<button class="sp-btn${isSel?' selected':''}" onclick="selectShift('${z}','${sh.id}')"><div style="font-weight:700">${sh.id}</div><div style="font-size:.68rem;opacity:.7">${sh.dt}</div><div style="font-size:.68rem;opacity:.7">${sh.nt}</div><div style="font-size:.76rem;margin-top:2px;color:${isSel?'var(--gold)':'#27ae60'}">${isOwn?'✅ คุณ':(row.dn||'ว่าง')}</div></button>`;
-      }
+      if(isBusy)html+=`<button class="sp-btn sp-busy" disabled><div style="font-weight:700">${sh.id}</div><div style="font-size:.68rem">${sh.dt}</div><div class="sp-busy-lbl">⛔ ไม่ว่าง</div><div style="font-size:.68rem;color:#c62828">${ocp.name}</div></button>`;
+      else html+=`<button class="sp-btn${isSel?' selected':''}" onclick="selectShift('${z}','${sh.id}')"><div style="font-weight:700">${sh.id}</div><div style="font-size:.68rem;opacity:.7">${sh.dt}</div><div style="font-size:.68rem;opacity:.7">${sh.nt}</div><div style="font-size:.76rem;margin-top:2px;color:${isSel?'var(--gold)':'#27ae60'}">${isOwn?'✅ คุณ':(row.dn||'ว่าง')}</div></button>`;
     });
     html+='</div>';
   });
@@ -1045,21 +1095,16 @@ function selectType(t){spType=t;updateSPTypeUI();}
 function updateSPTypeUI(){document.getElementById('spTypeIn').className='sp-type-btn'+(spType==='เข้า'?' sel-in':'');document.getElementById('spTypeKh').className='sp-type-btn'+(spType==='ควง'?' sel-kh':'');}
 function closeSP(){document.getElementById('spModal').classList.remove('open');spCtx=null;}
 function saveSP(){
-  if(!spCtx)return;
-  if(!spSel.zone||!spSel.shiftId){toast('⚠️ กรุณาเลือกจุดเวร');return;}
+  if(!spCtx)return;if(!spSel.zone||!spSel.shiftId){toast('⚠️ กรุณาเลือกจุดเวร');return;}
   const{iso,name,surname,uid}=spCtx;
-  const ocp=getOcc(iso)[spSel.shiftId];
-  if(ocp&&ocp.uid!==uid){toast('⛔ จุดนี้มีคนเข้าแล้ว');return;}
+  const ocp=getOcc(iso)[spSel.shiftId];if(ocp&&ocp.uid!==uid){toast('⛔ จุดนี้มีคนเข้าแล้ว');return;}
   const entry={name,surname,zone:spSel.zone,shiftId:spSel.shiftId,time:SHIFTS[spSel.zone].find(s=>s.id===spSel.shiftId)?.dt||'',type:spType};
   if(uid)updDuty(iso,uid,entry);else addDuty(iso,entry);
-  closeSP();renderRoster();
-  if(iso===curISO)renderSch();
-  toast('✅ บันทึกเวรแล้ว');
+  closeSP();renderRoster();if(iso===curISO)renderSch();toast('✅ บันทึกเวรแล้ว');
 }
 function delSP(){
   if(!spCtx||!spCtx.uid)return;if(!confirm('ลบ?'))return;
-  const{iso,uid}=spCtx;remDuty(iso,uid);closeSP();renderRoster();
-  if(iso===curISO)renderSch();toast('🗑 ลบแล้ว');
+  const{iso,uid}=spCtx;remDuty(iso,uid);closeSP();renderRoster();if(iso===curISO)renderSch();toast('🗑 ลบแล้ว');
 }
 
 // NAV
@@ -1068,31 +1113,18 @@ function goPage(n){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n-1));
 }
 
-// ═══════════════════════════════════════════
-//  INIT — Req 2: use actual today's date
-// ═══════════════════════════════════════════
+// INIT
 let APP_INIT_DONE=false;
 function initApp(){
-  if(APP_INIT_DONE)return;
-  APP_INIT_DONE=true;
-
+  if(APP_INIT_DONE)return;APP_INIT_DONE=true;
   curISO=realToday();
-  const dEl=document.getElementById('vDate');
-  if(dEl)dEl.value=curISO;
-
-  ensureSchContentEl();
-  try{renderSch();}catch(e){console.error('[duty] renderSch failed',e);}
-  try{renderBlankTable();}catch(e){console.error('[duty] renderBlankTable failed',e);}
-  try{renderRoster();}catch(e){console.error('[duty] renderRoster failed',e);}
+  const dEl=document.getElementById('vDate');if(dEl)dEl.value=curISO;
+  try{renderSch();}catch(e){console.error(e);}
+  try{renderBlankTable();}catch(e){console.error(e);}
+  try{renderRoster();}catch(e){console.error(e);}
 }
-
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded',initApp,{once:true});
-  window.addEventListener('load',initApp,{once:true});
-}else{
-  initApp();
-}
-setTimeout(initApp,0);
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initApp,{once:true});}
+else{initApp();}
 </script>
 </body>
 </html>
