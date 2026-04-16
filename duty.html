@@ -232,6 +232,7 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
         <input type="date" id="vDate" class="ctrl" onchange="onDateChange()">
         <button class="btn btn-ghost btn-sm" onclick="goToday()">วันนี้</button>
       </div>
+      <div id="schCap" class="sch-wrap"><div id="schContent"></div></div>
     </div>
   </div>
 
@@ -569,7 +570,9 @@ function renderSch(){
   html+=`<tr class="tr-sig"><td colspan="5" style="text-align:left">
     สัญญาณผ่าน &nbsp; ถาม <span class="kw">${sig.ask||'—'}</span> &nbsp; ตอบ <span class="kw">${sig.ans||'—'}</span>
   </td></tr></table>`;
-  document.getElementById('schContent').innerHTML=html;
+  const schContent=document.getElementById('schContent');
+  if(!schContent){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
+  schContent.innerHTML=html;
   renderDList(iso);
 }
 
