@@ -33,7 +33,7 @@ body{background:var(--bg);color:var(--t);font-size:14px;min-height:100vh}
 .side-ov.on{display:block}
 .ns{padding:8px 14px 3px;font-size:10px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1px;text-transform:uppercase}
 .ni{display:flex;align-items:center;gap:9px;padding:11px 14px;color:rgba(255,255,255,.72);
-  cursor:pointer;border-left:3px solid transparent;font-size:13px;font-weight:500;user-select:none}
+  cursor:pointer;border-left:3px solid transparent;font-size:13px;font-weight:500;user-select:none;text-decoration:none}
 .ni:hover{background:rgba(255,255,255,.07);color:#fff}
 .ni.on{background:rgba(212,175,55,.18);color:var(--ac);border-left-color:var(--ac)}
 .ndv{height:1px;background:rgba(255,255,255,.1);margin:4px 12px}
@@ -243,7 +243,7 @@ input.ei:focus,select.ss:focus{outline:none;border-color:var(--pl);background:#f
   <div class="ndv"></div>
   <div class="ns">ยอดประจำวัน</div>
   <div class="ni" id="ni-tbl" onclick="APP.go('tbl')">&#128203; ยอดรวมร้อย 2,3</div>
-  <div class="ni" id="ni-duty" onclick="APP.openDutyPage()">&#9876; ตารางเวร รร.นกก.</div>
+  <a class="ni" id="ni-duty" href="duty.html" onclick="APP.openDutyPage();return false;">&#9876; ตารางเวร รร.นกก.</a>
   <div class="ndv"></div>
   <div class="ni" id="ni-rpt" onclick="APP.go('rpt')">&#128200; รายงานยอดประจำวัน</div>
   <div class="ndv"></div>
