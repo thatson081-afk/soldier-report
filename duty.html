@@ -52,9 +52,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);m
    Proportional widths, clean borders
 */
 .sch-wrap{overflow-x:auto}
-.cap-view{width:100%;display:flex;justify-content:center;align-items:flex-start;overflow:hidden}
-.cap-scale{transform-origin:top left}
-.cap-fixed{width:949px;height:529px;background:#fff;overflow:hidden}
 .st{width:100%;border-collapse:collapse;font-size:.92rem;background:#fff;table-layout:fixed}
 .st td{border:1.5px solid var(--border);vertical-align:middle;padding:0}
 .st .col-zone{width:52px}.st .col-id{width:48px}.st .col-time{width:110px}.st .col-name{} /* auto */
@@ -203,7 +200,6 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
 @media(max-width:600px){
   .page{padding:8px}.st,.bl-tbl{font-size:.8rem}
   .td-time{min-width:76px}.td-name{min-width:80px}
-  .cap-view{overflow-x:auto}
 }
 </style>
 </head>
@@ -236,7 +232,6 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
         <input type="date" id="vDate" class="ctrl" onchange="onDateChange()">
         <button class="btn btn-ghost btn-sm" onclick="goToday()">วันนี้</button>
       </div>
-      <div class="sch-wrap"><div id="schCapView" class="cap-view"><div id="schCapScale" class="cap-scale"><div id="schCap" class="cap-fixed"><div id="schContent"></div></div></div></div></div>
     </div>
   </div>
 
@@ -513,18 +508,6 @@ const realToday=()=>{const d=new Date();const y=d.getFullYear(),m=String(d.getMo
 
 let curISO='';
 
-function fitScheduleCanvas(){
-  const baseW=949,baseH=529;
-  const view=document.getElementById('schCapView');
-  const scaleWrap=document.getElementById('schCapScale');
-  if(!view||!scaleWrap)return;
-  const available=view.clientWidth||baseW;
-  const scale=Math.min(1,available/baseW);
-  scaleWrap.style.transform=`scale(${scale})`;
-  view.style.height=`${Math.round(baseH*scale)}px`;
-}
-window.addEventListener('resize',fitScheduleCanvas);
-
 // ═══════════════════════════════════════════
 //  SCHEDULE
 // ═══════════════════════════════════════════
@@ -577,7 +560,6 @@ function renderSch(){
     สัญญาณผ่าน &nbsp; ถาม <span class="kw">${sig.ask||'—'}</span> &nbsp; ตอบ <span class="kw">${sig.ans||'—'}</span>
   </td></tr></table>`;
   document.getElementById('schContent').innerHTML=html;
-  fitScheduleCanvas();
   renderDList(iso);
 }
 
@@ -625,9 +607,6 @@ const delUD=(iso,uid)=>{if(!confirm('ลบ?'))return;remDuty(iso,uid);renderDLi
 
 function copyImg(elId){
   const el=document.getElementById(elId);
-  const opt={scale:2.5,backgroundColor:'#fff'};
-  if(elId==='schCap'){opt.width=949;opt.height=529;opt.windowWidth=949;opt.windowHeight=529;}
-  const run=()=>html2canvas(el,opt).then(async c=>{
     try{await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));toast('📋 คัดลอกรูปแล้ว!');}
     catch{const a=document.createElement('a');a.download='ตารางเวร.png';a.href=c.toDataURL();a.click();toast('📷 บันทึกรูปแทน');}
   });
@@ -1001,7 +980,6 @@ document.getElementById('vDate').value=curISO;
 renderSch();
 renderBlankTable();
 renderRoster();
-fitScheduleCanvas();
 </script>
 </body>
 </html>
