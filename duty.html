@@ -232,6 +232,7 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
         <input type="date" id="vDate" class="ctrl" onchange="onDateChange()">
         <button class="btn btn-ghost btn-sm" onclick="goToday()">วันนี้</button>
       </div>
+      <div id="schCap" class="sch-wrap"><div id="schContent"></div></div>
     </div>
   </div>
 
@@ -470,22 +471,39 @@ function loadPeopleFromMainPage(){
     if(!raw)return [];
     const arr=JSON.parse(raw);
     if(!Array.isArray(arr))return [];
+
     const dedup=new Map();
     arr.forEach(s=>{
+      if(!s||typeof s!=='object')return;
+
+      const name=(s.name||s.fname||'').toString().trim();
+      const surname=(s.surname||s.lname||'').toString().trim();
       if(!name)return;
-      const key=name+surname;
-      if(!dedup.has(key)){
-        dedup.set(key,{
-        });
-      }
+
+      const key=name+'|'+surname;
+      if(dedup.has(key))return;
+
+      dedup.set(key,{
+        yot:(s.yot||s.rank||'').toString().trim(),
+        gen:(s.gen||s.batch||'').toString().trim(),
+        name,
+        surname,
+        kk:(s.kk||s.kong_kong||'คงกอง').toString().trim()||'คงกอง'
+      });
     });
+
     return Array.from(dedup.values());
   }catch{
     return [];
   }
 }
 
-const BP=(()=>{const fromMain=loadPeopleFromMainPage();return fromMain.length?fromMain:BP_FALLBACK;})();
+const BP=(()=>{
+  const merged=new Map();
+  BP_FALLBACK.forEach(p=>merged.set(p.name+'|'+p.surname,p));
+  loadPeopleFromMainPage().forEach(p=>merged.set(p.name+'|'+p.surname,p));
+  return Array.from(merged.values());
+})();
 const allPeople=()=>{const ex=lsa(KP),ks=new Set(BP.map(p=>p.name+p.surname)),m=[...BP];ex.forEach(p=>{if(!ks.has(p.name+p.surname)){m.push(p);ks.add(p.name+p.surname);}});return m;};
 const EX={'วงศกร งามทอง':{'2':'เข้า','5':'เข้า','8':'เข้า'},'สิทธิกร ชื่นเย็น':{'2':'เข้า','5':'เข้า'},'คุณาธิป มีทอง':{'1':'ควง','3':'เข้า','6':'ควง'},'ไกรสร งอกผล':{'1':'ควง','2':'ควง','4':'เข้า','5':'เข้า','7':'เข้า','8':'เข้า'},'พงศ์ปณต วงศ์ศรีพรม':{'1':'เข้า','3':'ควง','6':'เข้า'},'ธนพล แก้วสุขใส':{'1':'เข้า','3':'เข้า','6':'ควง'},'พงศ์ภรณ์ คงบุรี':{'4':'เข้า','7':'ควง'},'สัญญา สีสาพุธ':{'2':'ควง','5':'เข้า','8':'เข้า'},'สุทิน สรสิงห์':{'2':'ควง','4':'ควง','8':'ควง'},'โชคอนันต์ ชมภูแสง':{'3':'ควง','7':'เข้า'},'ธนากรณ์ โพธิ์แก้ว':{'4':'เข้า','8':'ควง'},'รหัสลับ ธรรมสา':{'2':'ควง','4':'ควง','8':'เข้า'},'ธีระวัฒน์ นวนสาร':{'3':'ควง','7':'เข้า'},'วันชนะ สุธรรม':{'2':'ควง','3':'ควง','4':'ควง','5':'ควง','7':'ควง','8':'ควง'},'นัทธพร วงค์กระโซ่':{'6':'ควง'},'อันวา โยธะวงษ์':{'2':'เข้า','5':'เข้า'},'ธัชรัฏฐ์ สิงห์อุดม':{'1':'ควง'},'ศิโรดม ทอนเทพ':{'7':'ควง'},'อภินันท์ ดีรักษา':{'6':'เข้า','8':'ควง'},'ดุสิต อุบลชัย':{'1':'ควง','2':'ควง','3':'ควง','6':'ควง'},'ทัตธินีกรณ์ ชีพมูลน้อย':{'6':'ควง'},'ภานุพงศ์ แฉล้มกลาง':{'8':'ควง'},'วรเทพ สอนพงษ์':{'1':'ควง','3':'ควง','4':'ควง','5':'เข้า','7':'เข้า'},'อาทิตย์ วันหนา':{'5':'ควง','8':'ควง'}};
 
@@ -526,6 +544,28 @@ function getSchData(iso){
   return res;
 }
 
+function ensureSchContentEl(){
+  let contentEl=document.getElementById('schContent');
+  if(contentEl)return contentEl;
+
+  let capEl=document.getElementById('schCap');
+  const toolbar=document.querySelector('#pg1 .card .card-body .toolbar');
+  const host=toolbar?toolbar.parentElement:document.querySelector('#pg1 .card .card-body');
+  if(!host)return null;
+
+  if(!capEl){
+    capEl=document.createElement('div');
+    capEl.id='schCap';
+    capEl.className='sch-wrap';
+    host.appendChild(capEl);
+  }
+
+  contentEl=document.createElement('div');
+  contentEl.id='schContent';
+  capEl.appendChild(contentEl);
+  return contentEl;
+}
+
 function renderSch(){
   const iso=curISO;if(!iso)return;
   const title=`เวร รร.นกก. วันที่ ${thDate(iso)}`;
@@ -552,7 +592,9 @@ function renderSch(){
   html+=`<tr class="tr-sig"><td colspan="5" style="text-align:left">
     สัญญาณผ่าน &nbsp; ถาม <span class="kw">${sig.ask||'—'}</span> &nbsp; ตอบ <span class="kw">${sig.ans||'—'}</span>
   </td></tr></table>`;
-  document.getElementById('schContent').innerHTML=html;
+  const schEl=ensureSchContentEl();
+  if(!schEl){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
+  schEl.innerHTML=html;
   renderDList(iso);
 }
 
@@ -600,11 +642,62 @@ const delUD=(iso,uid)=>{if(!confirm('ลบ?'))return;remDuty(iso,uid);renderDLi
 
 function copyImg(elId){
   const el=document.getElementById(elId);
-    try{await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));toast('📋 คัดลอกรูปแล้ว!');}
-    catch{const a=document.createElement('a');a.download='ตารางเวร.png';a.href=c.toDataURL();a.click();toast('📷 บันทึกรูปแทน');}
-  });
-  typeof html2canvas==='undefined'?(()=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=run;document.head.appendChild(s);})():run();
+  if(!el){toast('⚠️ ไม่พบพื้นที่ที่ต้องการคัดลอก');return;}
+
+  const run=async()=>{
+    let target=el,cleanup=null;
+
+    // สำหรับตารางเวร: จับภาพในสัดส่วนคงที่ (คล้ายไฟล์ตัวอย่าง) ไม่ให้ภาพยืดเต็มจอ
+    if(elId==='schCap'){
+      const host=document.createElement('div');
+      host.style.position='fixed';
+      host.style.left='-10000px';
+      host.style.top='0';
+      host.style.background='#fff';
+      host.style.padding='0';
+      host.style.margin='0';
+      host.style.width='960px';
+
+      const clone=el.cloneNode(true);
+      clone.style.width='960px';
+      clone.style.maxWidth='960px';
+      clone.style.overflow='visible';
+      clone.querySelectorAll('table').forEach(t=>{t.style.width='100%';t.style.minWidth='960px';});
+
+      host.appendChild(clone);
+      document.body.appendChild(host);
+      target=clone;
+      cleanup=()=>host.remove();
+    }
+
+    try{
+      const c=await html2canvas(target,{backgroundColor:'#ffffff',scale:2,useCORS:true});
+      try{
+        await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));
+        toast('📋 คัดลอกรูปแล้ว!');
+      }catch{
+        const a=document.createElement('a');
+        a.download='ตารางเวร.png';
+        a.href=c.toDataURL();
+        a.click();
+        toast('📷 บันทึกรูปแทน');
+      }
+    }finally{
+      if(cleanup)cleanup();
+    }
+  };
+
+  if(typeof html2canvas==='undefined'){
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload=()=>run().catch(()=>toast('⚠️ ไม่สามารถสร้างรูปได้'));
+    s.onerror=()=>toast('⚠️ โหลดเครื่องมือคัดลอกรูปไม่สำเร็จ');
+    document.head.appendChild(s);
+  }else{
+    run().catch(()=>toast('⚠️ ไม่สามารถสร้างรูปได้'));
+  }
 }
+
 
 // ═══════════════════════════════════════════
 //  BLANK TABLE — free-form spreadsheet
@@ -968,11 +1061,21 @@ function goPage(n){
 // ═══════════════════════════════════════════
 //  INIT — Req 2: use actual today's date
 // ═══════════════════════════════════════════
-curISO=realToday();
-document.getElementById('vDate').value=curISO;
-renderSch();
-renderBlankTable();
-renderRoster();
+function initApp(){
+  curISO=realToday();
+  const dEl=document.getElementById('vDate');
+  if(dEl)dEl.value=curISO;
+  ensureSchContentEl();
+  renderSch();
+  renderBlankTable();
+  renderRoster();
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initApp);
+}else{
+  initApp();
+}
 </script>
 </body>
 </html>
