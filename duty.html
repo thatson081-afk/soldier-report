@@ -544,6 +544,28 @@ function getSchData(iso){
   return res;
 }
 
+function ensureSchContentEl(){
+  let schContent=document.getElementById('schContent');
+  if(schContent)return schContent;
+
+  let schCap=document.getElementById('schCap');
+  const toolbar=document.querySelector('#pg1 .card .card-body .toolbar');
+  const host=toolbar?toolbar.parentElement:document.querySelector('#pg1 .card .card-body');
+  if(!host)return null;
+
+  if(!schCap){
+    schCap=document.createElement('div');
+    schCap.id='schCap';
+    schCap.className='sch-wrap';
+    host.appendChild(schCap);
+  }
+
+  schContent=document.createElement('div');
+  schContent.id='schContent';
+  schCap.appendChild(schContent);
+  return schContent;
+}
+
 function renderSch(){
   const iso=curISO;if(!iso)return;
   const title=`เวร รร.นกก. วันที่ ${thDate(iso)}`;
@@ -570,6 +592,7 @@ function renderSch(){
   html+=`<tr class="tr-sig"><td colspan="5" style="text-align:left">
     สัญญาณผ่าน &nbsp; ถาม <span class="kw">${sig.ask||'—'}</span> &nbsp; ตอบ <span class="kw">${sig.ans||'—'}</span>
   </td></tr></table>`;
+  const schContent=ensureSchContentEl();
   const schContent=document.getElementById('schContent');
   if(!schContent){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
   schContent.innerHTML=html;
@@ -1049,11 +1072,21 @@ function goPage(n){
 // ═══════════════════════════════════════════
 //  INIT — Req 2: use actual today's date
 // ═══════════════════════════════════════════
-curISO=realToday();
-document.getElementById('vDate').value=curISO;
-renderSch();
-renderBlankTable();
-renderRoster();
+function initApp(){
+  curISO=realToday();
+  const dEl=document.getElementById('vDate');
+  if(dEl)dEl.value=curISO;
+  ensureSchContentEl();
+  renderSch();
+  renderBlankTable();
+  renderRoster();
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initApp);
+}else{
+  initApp();
+}
 </script>
 </body>
 </html>
