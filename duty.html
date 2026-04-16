@@ -472,17 +472,10 @@ function loadPeopleFromMainPage(){
     if(!Array.isArray(arr))return [];
     const dedup=new Map();
     arr.forEach(s=>{
-      const name=(s?.fname||'').trim();
-      const surname=(s?.lname||'').trim();
       if(!name)return;
       const key=name+surname;
       if(!dedup.has(key)){
         dedup.set(key,{
-          yot:(s?.status_text||'กองร้อย').trim()||'กองร้อย',
-          gen:(s?.gen||'').trim(),
-          name,
-          surname,
-          kk:(s?.kong_kong||'คงกอง').trim()||'คงกอง'
         });
       }
     });
