@@ -261,6 +261,7 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
     </div>
   </div>
 
+  <!-- Duty list -->
   <div class="card">
     <div class="card-head"><span id="dListTitle">รายชื่อเข้าเวร</span></div>
     <div class="card-body">
@@ -593,8 +594,8 @@ function renderSch(){
   html+=`<tr class="tr-sig"><td colspan="5" style="text-align:left">
     สัญญาณผ่าน &nbsp; ถาม <span class="kw">${sig.ask||'—'}</span> &nbsp; ตอบ <span class="kw">${sig.ans||'—'}</span>
   </td></tr></table>`;
-  const schEl=ensureSchContentEl();
-  if(!schEl){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
+  const schEl=document.getElementById('schContent');
+  if(!schEl)return;
   schEl.innerHTML=html;
   renderDList(iso);
 }
@@ -1200,27 +1201,15 @@ function goPage(n){
 // ═══════════════════════════════════════════
 //  INIT — Req 2: use actual today's date
 // ═══════════════════════════════════════════
-let APP_INIT_DONE=false;
 function initApp(){
-  if(APP_INIT_DONE)return;
-  APP_INIT_DONE=true;
-
   curISO=realToday();
   const dEl=document.getElementById('vDate');
   if(dEl)dEl.value=curISO;
-
-  ensureSchContentEl();
-  try{renderSch();}catch(e){console.error('[duty] renderSch failed',e);}
-  try{renderRoster();}catch(e){console.error('[duty] renderRoster failed',e);}
+  renderSch();
+  renderRoster();
 }
 
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded',initApp,{once:true});
-  window.addEventListener('load',initApp,{once:true});
-}else{
-  initApp();
-}
-setTimeout(initApp,0);
+initApp();
 </script>
 </body>
 </html>
