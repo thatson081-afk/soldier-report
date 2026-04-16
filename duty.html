@@ -545,6 +545,10 @@ function getSchData(iso){
 }
 
 function ensureSchContentEl(){
+  let contentEl=document.getElementById('schContent');
+  if(contentEl)return contentEl;
+
+  let capEl=document.getElementById('schCap');
   let schContent=document.getElementById('schContent');
   if(schContent)return schContent;
 
@@ -553,6 +557,17 @@ function ensureSchContentEl(){
   const host=toolbar?toolbar.parentElement:document.querySelector('#pg1 .card .card-body');
   if(!host)return null;
 
+  if(!capEl){
+    capEl=document.createElement('div');
+    capEl.id='schCap';
+    capEl.className='sch-wrap';
+    host.appendChild(capEl);
+  }
+
+  contentEl=document.createElement('div');
+  contentEl.id='schContent';
+  capEl.appendChild(contentEl);
+  return contentEl;
   if(!schCap){
     schCap=document.createElement('div');
     schCap.id='schCap';
@@ -592,6 +607,9 @@ function renderSch(){
   html+=`<tr class="tr-sig"><td colspan="5" style="text-align:left">
     สัญญาณผ่าน &nbsp; ถาม <span class="kw">${sig.ask||'—'}</span> &nbsp; ตอบ <span class="kw">${sig.ans||'—'}</span>
   </td></tr></table>`;
+  const schEl=ensureSchContentEl();
+  if(!schEl){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
+  schEl.innerHTML=html;
   const schContent=ensureSchContentEl();
   const schContent=document.getElementById('schContent');
   if(!schContent){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
