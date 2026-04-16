@@ -392,8 +392,13 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
 <div class="toast" id="toast"></div>
 
 <script>
-const DUTY_BUILD='2026-04-16-fix-schcontent-redeclare';
+const DUTY_BUILD='2026-04-16-fix-schcontent-redeclare-v2';
 console.info('[duty] build',DUTY_BUILD);
+if(!new URL(location.href).searchParams.get('v')){
+  const u=new URL(location.href);
+  u.searchParams.set('v',DUTY_BUILD);
+  location.replace(u.toString());
+}
 // ═══════════════════════════════════════════
 //  STORAGE
 // ═══════════════════════════════════════════
@@ -554,10 +559,6 @@ function ensureSchContentEl(){
   if(contentEl)return contentEl;
 
   let capEl=document.getElementById('schCap');
-  let schContent=document.getElementById('schContent');
-  if(schContent)return schContent;
-
-  let schCap=document.getElementById('schCap');
   const toolbar=document.querySelector('#pg1 .card .card-body .toolbar');
   const host=toolbar?toolbar.parentElement:document.querySelector('#pg1 .card .card-body');
   if(!host)return null;
@@ -573,17 +574,6 @@ function ensureSchContentEl(){
   contentEl.id='schContent';
   capEl.appendChild(contentEl);
   return contentEl;
-  if(!schCap){
-    schCap=document.createElement('div');
-    schCap.id='schCap';
-    schCap.className='sch-wrap';
-    host.appendChild(schCap);
-  }
-
-  schContent=document.createElement('div');
-  schContent.id='schContent';
-  schCap.appendChild(schContent);
-  return schContent;
 }
 
 function renderSch(){
@@ -615,10 +605,6 @@ function renderSch(){
   const schEl=ensureSchContentEl();
   if(!schEl){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
   schEl.innerHTML=html;
-  const schContent=ensureSchContentEl();
-  const schContent=document.getElementById('schContent');
-  if(!schContent){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
-  schContent.innerHTML=html;
   renderDList(iso);
 }
 
@@ -708,16 +694,6 @@ function copyImg(elId){
       }
     }finally{
       if(cleanup)cleanup();
-    const c=await html2canvas(el,{backgroundColor:'#ffffff',scale:2,useCORS:true});
-    try{
-      await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));
-      toast('📋 คัดลอกรูปแล้ว!');
-    }catch{
-      const a=document.createElement('a');
-      a.download='ตารางเวร.png';
-      a.href=c.toDataURL();
-      a.click();
-      toast('📷 บันทึกรูปแทน');
     }
   };
 
@@ -1095,21 +1071,28 @@ function goPage(n){
 // ═══════════════════════════════════════════
 //  INIT — Req 2: use actual today's date
 // ═══════════════════════════════════════════
+let APP_INIT_DONE=false;
 function initApp(){
+  if(APP_INIT_DONE)return;
+  APP_INIT_DONE=true;
+
   curISO=realToday();
   const dEl=document.getElementById('vDate');
   if(dEl)dEl.value=curISO;
+
   ensureSchContentEl();
-  renderSch();
-  renderBlankTable();
-  renderRoster();
+  try{renderSch();}catch(e){console.error('[duty] renderSch failed',e);}
+  try{renderBlankTable();}catch(e){console.error('[duty] renderBlankTable failed',e);}
+  try{renderRoster();}catch(e){console.error('[duty] renderRoster failed',e);}
 }
 
 if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded',initApp);
+  document.addEventListener('DOMContentLoaded',initApp,{once:true});
+  window.addEventListener('load',initApp,{once:true});
 }else{
   initApp();
 }
+setTimeout(initApp,0);
 </script>
 </body>
 </html>
