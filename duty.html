@@ -7,6 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>ตารางเวร รร.นกก.</title>
+<link rel="icon" href="data:,">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
 :root{
@@ -389,13 +390,9 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
 <div class="toast" id="toast"></div>
 
 <script>
-const DUTY_BUILD='2026-04-16-fix-schcontent-redeclare-v2';
+const DUTY_BUILD='2026-04-16-stable-v3';
+const schColW=260;
 console.info('[duty] build',DUTY_BUILD);
-if(!new URL(location.href).searchParams.get('v')){
-  const u=new URL(location.href);
-  u.searchParams.set('v',DUTY_BUILD);
-  location.replace(u.toString());
-}
 // ═══════════════════════════════════════════
 //  STORAGE
 // ══════════════════════════════════════════
@@ -499,6 +496,14 @@ function loadPeopleFromMain(){
     return Array.from(dedup.values());
   }catch{return[];}
 }
+
+const safeLoadPeople=()=>{
+  try{
+    return typeof loadPeopleFromMainPage==='function' ? loadPeopleFromMainPage() : [];
+  }catch{
+    return [];
+  }
+};
 
 const safeLoadPeople=()=>{
   try{
