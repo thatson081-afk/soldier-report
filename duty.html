@@ -45,14 +45,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);m
 
 /* ═══ MAIN SCHEDULE TABLE with resizable cols ═══ */
 .sch-wrap{overflow-x:auto}
-.st{border-collapse:collapse;font-size:.92rem;background:#fff;table-layout:fixed;width:100%}
+.st{border-collapse:collapse;font-size:.92rem;background:#fff;table-layout:fixed;width:auto;margin:0 auto}
 .st td{border:1.5px solid var(--border);vertical-align:middle;padding:0;position:relative;overflow:hidden}
 .tr-ttl td{background:var(--title-bg);text-align:center;padding:10px 8px;font-size:.95rem;font-weight:600;color:#333}
 .td-zone{background:var(--zone-bg);font-weight:700;text-align:center;font-size:1rem}
 .td-zone-name{background:var(--zone-name-bg);text-align:center;font-weight:600;padding:9px 10px;font-size:.9rem;color:var(--navy2)}
 .td-sid{background:var(--title-bg);text-align:center;font-weight:400;font-size:.9rem;padding:10px 4px;color:#444}
 .td-time{text-align:center;padding:10px 6px;font-size:.87rem;color:#333;background:#fff;white-space:nowrap}
-.td-name{text-align:center;padding:10px 12px;color:var(--text);font-size:.93rem;background:#fff;cursor:pointer;transition:background .12s}
+.td-name{text-align:center;padding:10px 12px;color:var(--text);font-size:.93rem;background:#fff;cursor:pointer;transition:background .12s;white-space:nowrap}
 .td-name:hover{background:#e8f0fc}
 .td-name.has-name{font-weight:600;color:var(--navy2)}
 .tr-sig td{background:var(--signal-bg);padding:9px 16px;font-size:.88rem;font-weight:500;border-top:1.5px solid var(--border)}
@@ -152,10 +152,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);m
 .th-icon.active-asc .arr-up,.th-icon.active-desc .arr-dn{opacity:1;color:var(--gold2)}
 .arr-up::before{content:'▲';font-size:.48rem;line-height:1}.arr-dn::before{content:'▼';font-size:.48rem;line-height:1}
 .th-flt-dot{width:6px;height:6px;border-radius:50%;background:var(--gold2);flex-shrink:0;display:none}.th-flt-dot.on{display:block}
-th.c-yot{min-width:82px}th.c-gen{min-width:58px}th.c-name{min-width:140px}th.c-kk{min-width:76px}
+th.c-yot{min-width:82px}th.c-gen{min-width:58px}th.c-name{min-width:110px}th.c-kk{min-width:76px}
 th.c-day{min-width:26px;font-size:.67rem;padding:8px 2px;cursor:default}
 #rt td{padding:4px 3px;border:1px solid #dde3ed;text-align:center;vertical-align:middle}
-#rt td.nc{position:sticky;left:0;background:#f0f4fa;font-weight:600;color:var(--navy2);text-align:left;padding-left:9px;min-width:140px;z-index:5;border-right:2px solid var(--navy2)}
+#rt td.nc{position:sticky;left:0;background:#f0f4fa;font-weight:600;color:var(--navy2);text-align:left;padding-left:9px;min-width:110px;z-index:5;border-right:2px solid var(--navy2)}
 #rt td.c-yot-td{background:#f7f9fb;font-size:.71rem;color:#555}
 #rt td.c-gen-td{background:#f7f9fb;font-size:.7rem;color:#666}
 #rt td.c-kk-td{font-size:.71rem;font-weight:600}
@@ -484,7 +484,8 @@ function loadPeopleFromMain(){
       if(!name)return;
       const key=name+'|'+surname;
       if(dedup.has(key))return;
-      dedup.set(key,{yot:(s.yot||s.rank||'').toString().trim(),gen:(s.gen||'').toString().trim(),name,surname,kk:(s.kk||s.kong_kong||'คงกอง').toString().trim()||'คงกอง'});
+      const yotVal=(s.yot||s.status_text||s.status||s.position||s.rank||'').toString().trim();
+      dedup.set(key,{yot:yotVal,gen:(s.gen||'').toString().trim(),name,surname,kk:(s.kk||s.kong_kong||'คงกอง').toString().trim()||'คงกอง'});
     });
     return Array.from(dedup.values());
   }catch{return[];}
@@ -525,8 +526,23 @@ function getSchData(iso){
 }
 
 // Main schedule column widths (stored per-session only)
-const schColW={zone:52,id:48,time1:100,time2:100,name:150};
+const schColW={zone:52,id:48,time1:100,time2:100,name:120};
 let schFontSize=14; // px, adjustable
+
+function autoNameWidth(sched){
+  const cvs=document.createElement('canvas');
+  const ctx=cvs.getContext('2d');
+  if(!ctx)return schColW.name;
+  ctx.font=`${schFontSize}px Sarabun, sans-serif`;
+  let maxPx=0;
+  ZONES.forEach(z=>{
+    (sched[z]||[]).forEach(sh=>{
+      const txt=(sh?.dn||'—').trim()||'—';
+      maxPx=Math.max(maxPx,ctx.measureText(txt).width);
+    });
+  });
+  return Math.max(120,Math.min(Math.ceil(maxPx)+28,320));
+}
 
 function renderSch(){
   const iso=curISO;if(!iso)return;
@@ -534,13 +550,14 @@ function renderSch(){
   document.getElementById('pg1Label').textContent=title;
   document.getElementById('dListTitle').textContent=`รายชื่อเข้าเวร วันที่ ${thDate(iso)}`;
   const sched=getSchData(iso);
+  schColW.name=autoNameWidth(sched);
   let html=`<table class="st" id="schTable" style="font-size:${schFontSize}px">
   <colgroup>
     <col id="sc0" style="width:${schColW.zone}px">
     <col id="sc1" style="width:${schColW.id}px">
     <col id="sc2" style="width:${schColW.time1}px">
     <col id="sc3" style="width:${schColW.time2}px">
-    <col id="sc4">
+    <col id="sc4" style="width:${schColW.name}px">
   </colgroup>
   <tr class="tr-ttl"><td colspan="5" style="position:relative">${title}<div class="col-resizer" data-col="0" title="ลากเพื่อปรับความกว้าง"></div></td></tr>`;
   ZONES.forEach(z=>{
@@ -552,7 +569,7 @@ function renderSch(){
         <td class="td-sid" style="position:relative">${sh.id}<div class="col-resizer" data-col="1"></div></td>
         <td class="td-time" style="position:relative">${sh.dt}<div class="col-resizer" data-col="2"></div></td>
         <td class="td-time" style="position:relative">${sh.nt}<div class="col-resizer" data-col="3"></div></td>
-        <td class="td-name${sh.dn?' has-name':''}" onclick="editSchName('${iso}','${z}','${sh.id}')" title="คลิกแก้ไข">${disp}</td>
+        <td class="td-name${sh.dn?' has-name':''}" onclick="editSchName('${iso}','${z}','${sh.id}')" title="คลิกแก้ไข" style="position:relative">${disp}<div class="col-resizer" data-col="4"></div></td>
       </tr>`;
     });
   });
@@ -617,13 +634,13 @@ function copyImg(elId){
     if(elId==='schCap'){
       // คำนวณความกว้างจากตารางจริงให้พอดีกับเนื้อหา ไม่กว้างเกิน
       const tblEl=el.querySelector('table');
-      const tblW=tblEl?tblEl.scrollWidth:600;
-      const capW=Math.max(420,Math.min(tblW+6,820));
+      const tblW=tblEl?tblEl.scrollWidth:520;
+      const capW=Math.max(420,Math.min(tblW+6,680));
       const host=document.createElement('div');
       host.style.cssText=`position:fixed;left:-10000px;top:0;background:#fff;width:${capW}px;padding:0`;
       const clone=el.cloneNode(true);
       clone.style.width=capW+'px';clone.style.maxWidth=capW+'px';clone.style.overflow='visible';
-      clone.querySelectorAll('table').forEach(t=>{t.style.width='100%';t.style.fontSize=schFontSize+'px';});
+      clone.querySelectorAll('table').forEach(t=>{t.style.width='auto';t.style.margin='0 auto';t.style.fontSize=schFontSize+'px';});
       host.appendChild(clone);document.body.appendChild(host);
       target=clone;cleanup=()=>host.remove();
     }
