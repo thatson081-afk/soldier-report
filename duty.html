@@ -52,7 +52,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);m
 .td-zone-name{background:var(--zone-name-bg);text-align:center;font-weight:600;padding:9px 10px;font-size:.9rem;color:var(--navy2)}
 .td-sid{background:var(--title-bg);text-align:center;font-weight:400;font-size:.9rem;padding:10px 4px;color:#444}
 .td-time{text-align:center;padding:10px 6px;font-size:.87rem;color:#333;background:#fff;white-space:nowrap}
-.td-name{text-align:center;padding:10px 12px;color:var(--text);font-size:.93rem;background:#fff;cursor:pointer;transition:background .12s}
+.td-name{text-align:center;padding:10px 12px;color:var(--text);font-size:.93rem;background:#fff;cursor:pointer;transition:background .12s;white-space:nowrap}
 .td-name:hover{background:#e8f0fc}
 .td-name.has-name{font-weight:600;color:var(--navy2)}
 .tr-sig td{background:var(--signal-bg);padding:9px 16px;font-size:.88rem;font-weight:500;border-top:1.5px solid var(--border)}
@@ -528,12 +528,28 @@ function getSchData(iso){
 const schColW={zone:52,id:48,time1:100,time2:100,name:120};
 let schFontSize=14; // px, adjustable
 
+function autoNameWidth(sched){
+  const cvs=document.createElement('canvas');
+  const ctx=cvs.getContext('2d');
+  if(!ctx)return schColW.name;
+  ctx.font=`${schFontSize}px Sarabun, sans-serif`;
+  let maxPx=0;
+  ZONES.forEach(z=>{
+    (sched[z]||[]).forEach(sh=>{
+      const txt=(sh?.dn||'—').trim()||'—';
+      maxPx=Math.max(maxPx,ctx.measureText(txt).width);
+    });
+  });
+  return Math.max(120,Math.min(Math.ceil(maxPx)+28,320));
+}
+
 function renderSch(){
   const iso=curISO;if(!iso)return;
   const title=`เวร รร.นกก. วันที่ ${thDate(iso)}`;
   document.getElementById('pg1Label').textContent=title;
   document.getElementById('dListTitle').textContent=`รายชื่อเข้าเวร วันที่ ${thDate(iso)}`;
   const sched=getSchData(iso);
+  schColW.name=autoNameWidth(sched);
   let html=`<table class="st" id="schTable" style="font-size:${schFontSize}px">
   <colgroup>
     <col id="sc0" style="width:${schColW.zone}px">
