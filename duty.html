@@ -484,7 +484,8 @@ function loadPeopleFromMain(){
       if(!name)return;
       const key=name+'|'+surname;
       if(dedup.has(key))return;
-      dedup.set(key,{yot:(s.yot||s.rank||'').toString().trim(),gen:(s.gen||'').toString().trim(),name,surname,kk:(s.kk||s.kong_kong||'คงกอง').toString().trim()||'คงกอง'});
+      const yotVal=(s.yot||s.status_text||s.status||s.position||s.rank||'').toString().trim();
+      dedup.set(key,{yot:yotVal,gen:(s.gen||'').toString().trim(),name,surname,kk:(s.kk||s.kong_kong||'คงกอง').toString().trim()||'คงกอง'});
     });
     return Array.from(dedup.values());
   }catch{return[];}
