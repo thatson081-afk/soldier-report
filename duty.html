@@ -45,7 +45,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);m
 
 /* ═══ MAIN SCHEDULE TABLE with resizable cols ═══ */
 .sch-wrap{overflow-x:auto}
-.st{border-collapse:collapse;font-size:.92rem;background:#fff;table-layout:fixed;width:100%}
+.st{border-collapse:collapse;font-size:.92rem;background:#fff;table-layout:fixed;width:auto;margin:0 auto}
 .st td{border:1.5px solid var(--border);vertical-align:middle;padding:0;position:relative;overflow:hidden}
 .tr-ttl td{background:var(--title-bg);text-align:center;padding:10px 8px;font-size:.95rem;font-weight:600;color:#333}
 .td-zone{background:var(--zone-bg);font-weight:700;text-align:center;font-size:1rem}
@@ -525,7 +525,7 @@ function getSchData(iso){
 }
 
 // Main schedule column widths (stored per-session only)
-const schColW={zone:52,id:48,time1:100,time2:100,name:150};
+const schColW={zone:52,id:48,time1:100,time2:100,name:120};
 let schFontSize=14; // px, adjustable
 
 function renderSch(){
@@ -540,7 +540,7 @@ function renderSch(){
     <col id="sc1" style="width:${schColW.id}px">
     <col id="sc2" style="width:${schColW.time1}px">
     <col id="sc3" style="width:${schColW.time2}px">
-    <col id="sc4">
+    <col id="sc4" style="width:${schColW.name}px">
   </colgroup>
   <tr class="tr-ttl"><td colspan="5" style="position:relative">${title}<div class="col-resizer" data-col="0" title="ลากเพื่อปรับความกว้าง"></div></td></tr>`;
   ZONES.forEach(z=>{
@@ -552,7 +552,7 @@ function renderSch(){
         <td class="td-sid" style="position:relative">${sh.id}<div class="col-resizer" data-col="1"></div></td>
         <td class="td-time" style="position:relative">${sh.dt}<div class="col-resizer" data-col="2"></div></td>
         <td class="td-time" style="position:relative">${sh.nt}<div class="col-resizer" data-col="3"></div></td>
-        <td class="td-name${sh.dn?' has-name':''}" onclick="editSchName('${iso}','${z}','${sh.id}')" title="คลิกแก้ไข">${disp}</td>
+        <td class="td-name${sh.dn?' has-name':''}" onclick="editSchName('${iso}','${z}','${sh.id}')" title="คลิกแก้ไข" style="position:relative">${disp}<div class="col-resizer" data-col="4"></div></td>
       </tr>`;
     });
   });
@@ -617,13 +617,13 @@ function copyImg(elId){
     if(elId==='schCap'){
       // คำนวณความกว้างจากตารางจริงให้พอดีกับเนื้อหา ไม่กว้างเกิน
       const tblEl=el.querySelector('table');
-      const tblW=tblEl?tblEl.scrollWidth:600;
-      const capW=Math.max(420,Math.min(tblW+6,820));
+      const tblW=tblEl?tblEl.scrollWidth:520;
+      const capW=Math.max(420,Math.min(tblW+6,680));
       const host=document.createElement('div');
       host.style.cssText=`position:fixed;left:-10000px;top:0;background:#fff;width:${capW}px;padding:0`;
       const clone=el.cloneNode(true);
       clone.style.width=capW+'px';clone.style.maxWidth=capW+'px';clone.style.overflow='visible';
-      clone.querySelectorAll('table').forEach(t=>{t.style.width='100%';t.style.fontSize=schFontSize+'px';});
+      clone.querySelectorAll('table').forEach(t=>{t.style.width='auto';t.style.margin='0 auto';t.style.fontSize=schFontSize+'px';});
       host.appendChild(clone);document.body.appendChild(host);
       target=clone;cleanup=()=>host.remove();
     }
