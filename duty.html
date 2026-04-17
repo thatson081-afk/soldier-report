@@ -3,11 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>ตารางเวร รร.นกก.</title>
-<link rel="icon" href="data:,">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
 :root{
@@ -49,16 +45,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--gray);color:var(--text);m
 
 /* ═══ MAIN SCHEDULE TABLE with resizable cols ═══ */
 .sch-wrap{overflow-x:auto}
-.st{width:100%;border-collapse:collapse;font-size:.92rem;background:#fff;table-layout:fixed}
-.st td{border:1.5px solid var(--border);vertical-align:middle;padding:0}
-.st .col-zone{width:52px}.st .col-id{width:48px}.st .col-time{width:96px}.st .col-name{width:260px}
-
-.tr-ttl td{background:var(--title-bg);text-align:center;padding:10px 8px;font-size:.95rem;font-weight:600;color:#333;letter-spacing:.3px}
+.st{border-collapse:collapse;font-size:.92rem;background:#fff;table-layout:fixed;width:100%}
+.st td{border:1.5px solid var(--border);vertical-align:middle;padding:0;position:relative;overflow:hidden}
+.tr-ttl td{background:var(--title-bg);text-align:center;padding:10px 8px;font-size:.95rem;font-weight:600;color:#333}
 .td-zone{background:var(--zone-bg);font-weight:700;text-align:center;font-size:1rem}
 .td-zone-name{background:var(--zone-name-bg);text-align:center;font-weight:600;padding:9px 10px;font-size:.9rem;color:var(--navy2)}
 .td-sid{background:var(--title-bg);text-align:center;font-weight:400;font-size:.9rem;padding:10px 4px;color:#444}
 .td-time{text-align:center;padding:10px 6px;font-size:.87rem;color:#333;background:#fff;white-space:nowrap}
-.td-name{text-align:center;padding:8px 10px;color:var(--text);font-size:.9rem;background:#fff;cursor:pointer;transition:background .12s;line-height:1.25;word-break:break-word}
+.td-name{text-align:center;padding:10px 12px;color:var(--text);font-size:.93rem;background:#fff;cursor:pointer;transition:background .12s}
 .td-name:hover{background:#e8f0fc}
 .td-name.has-name{font-weight:600;color:var(--navy2)}
 .tr-sig td{background:var(--signal-bg);padding:9px 16px;font-size:.88rem;font-weight:500;border-top:1.5px solid var(--border)}
@@ -225,11 +219,6 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
 
 .toast{position:fixed;bottom:18px;right:18px;z-index:9999;background:var(--navy2);color:#fff;border-left:4px solid var(--gold);border-radius:8px;padding:10px 18px;font-size:.85rem;font-weight:600;transform:translateY(70px);opacity:0;transition:all .3s;pointer-events:none;max-width:320px}
 .toast.show{transform:translateY(0);opacity:1}
-
-@media(max-width:600px){
-  .page{padding:8px}.st,.bl-tbl{font-size:.8rem}
-  .td-time{min-width:72px}.td-name{min-width:160px;font-size:.82rem;padding:7px 6px;line-height:1.2}
-}
 </style>
 </head>
 <body>
@@ -247,7 +236,12 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
   <div class="card">
     <div class="card-head">
       <span id="pg1Label">ตารางเวร</span>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <div style="display:flex;align-items:center;gap:3px;background:rgba(255,255,255,.12);border-radius:6px;padding:2px 4px">
+          <button class="btn btn-sm" style="background:none;color:var(--gold2);border:none;padding:3px 7px;font-size:1rem;font-weight:700" onclick="schFontAdj(-1)" title="ลดขนาดตัวหนังสือ">A−</button>
+          <span id="schFontDisp" style="color:var(--gold2);font-size:.75rem;min-width:28px;text-align:center">14</span>
+          <button class="btn btn-sm" style="background:none;color:var(--gold2);border:none;padding:3px 7px;font-size:1rem;font-weight:700" onclick="schFontAdj(1)" title="เพิ่มขนาดตัวหนังสือ">A+</button>
+        </div>
         <button class="btn btn-gold btn-sm" onclick="openSigModal()">🔑 สัญญาณผ่าน</button>
         <button class="btn btn-navy btn-sm" onclick="copyImg('schCap')">📋 คัดลอกรูป</button>
       </div>
@@ -262,7 +256,23 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
     </div>
   </div>
 
-  <!-- Duty list -->
+  <div class="card">
+    <div class="card-head">
+      <span>📊 ตารางจัดเวร (Google Sheets)</span>
+      <button class="btn btn-gold btn-sm" onclick="window.open('https://docs.google.com/spreadsheets/d/1iJ6FA3DLIu2u4F-2354BGmcpOTQaJCxtqLHohtg7U_A/edit?usp=sharing','_blank')">📋 เปิด Google Sheets</button>
+    </div>
+    <div class="card-body" style="padding:10px;text-align:center">
+      <a href="https://docs.google.com/spreadsheets/d/1iJ6FA3DLIu2u4F-2354BGmcpOTQaJCxtqLHohtg7U_A/edit?usp=sharing" target="_blank"
+        style="display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#1e6835,#34a853);color:#fff;border-radius:10px;padding:14px 28px;font-family:'Sarabun',sans-serif;font-size:1rem;font-weight:700;text-decoration:none;box-shadow:0 3px 14px rgba(52,168,83,.35);transition:all .18s"
+        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(52,168,83,.45)'"
+        onmouseout="this.style.transform='';this.style.boxShadow='0 3px 14px rgba(52,168,83,.35)'">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/><line x1="8" y1="13" x2="16" y2="13" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/><line x1="8" y1="17" x2="16" y2="17" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/><line x1="8" y1="9" x2="10" y2="9" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/></svg>
+        เปิดตาราง Google Sheets
+      </a>
+      <div style="margin-top:8px;font-size:.78rem;color:#888">คลิกเพื่อเปิดในแท็บใหม่</div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-head"><span id="dListTitle">รายชื่อเข้าเวร</span></div>
     <div class="card-body">
@@ -390,10 +400,7 @@ th.rc-today{border-left:2px solid var(--gold2)!important;border-right:2px solid 
 <div class="toast" id="toast"></div>
 
 <script>
-const DUTY_BUILD='2026-04-16-stable-v3';
-const schColW=260;
-console.info('[duty] build',DUTY_BUILD);
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
 //  STORAGE
 // ══════════════════════════════════════════
 const KD='wn_d7',KS='wn_s7',KP='wn_p7',KB='wn_b8',KSC='wn_sc7';
@@ -468,57 +475,21 @@ const BPm=new Map();BP_RAW.forEach(p=>{const k=p.name+'|'+p.surname;if(!BPm.has(
 const BP_FALLBACK=Array.from(BPm.values());
 function loadPeopleFromMain(){
   try{
-    const raw=localStorage.getItem(MAIN_STORAGE_KEY);
-    if(!raw)return [];
-    const arr=JSON.parse(raw);
-    if(!Array.isArray(arr))return [];
-
+    const raw=localStorage.getItem(MAIN_STORAGE_KEY);if(!raw)return[];
+    const arr=JSON.parse(raw);if(!Array.isArray(arr))return[];
     const dedup=new Map();
     arr.forEach(s=>{
-      if(!s||typeof s!=='object')return;
-
       const name=(s.name||s.fname||'').toString().trim();
       const surname=(s.surname||s.lname||'').toString().trim();
       if(!name)return;
-
       const key=name+'|'+surname;
       if(dedup.has(key))return;
-
-      dedup.set(key,{
-        yot:(s.yot||s.rank||'').toString().trim(),
-        gen:(s.gen||s.batch||'').toString().trim(),
-        name,
-        surname,
-        kk:(s.kk||s.kong_kong||'คงกอง').toString().trim()||'คงกอง'
-      });
+      dedup.set(key,{yot:(s.yot||s.rank||'').toString().trim(),gen:(s.gen||'').toString().trim(),name,surname,kk:(s.kk||s.kong_kong||'คงกอง').toString().trim()||'คงกอง'});
     });
-
     return Array.from(dedup.values());
   }catch{return[];}
 }
-
-const safeLoadPeople=()=>{
-  try{
-    return typeof loadPeopleFromMainPage==='function' ? loadPeopleFromMainPage() : [];
-  }catch{
-    return [];
-  }
-};
-
-const safeLoadPeople=()=>{
-  try{
-    return typeof loadPeopleFromMainPage==='function' ? loadPeopleFromMainPage() : [];
-  }catch{
-    return [];
-  }
-};
-
-const BP=(()=>{
-  const merged=new Map();
-  BP_FALLBACK.forEach(p=>merged.set(p.name+'|'+p.surname,p));
-  safeLoadPeople().forEach(p=>merged.set(p.name+'|'+p.surname,p));
-  return Array.from(merged.values());
-})();
+const BP=(()=>{const m=new Map();BP_FALLBACK.forEach(p=>m.set(p.name+'|'+p.surname,p));loadPeopleFromMain().forEach(p=>m.set(p.name+'|'+p.surname,p));return Array.from(m.values());})();
 const allPeople=()=>{const ex=lsa(KP),ks=new Set(BP.map(p=>p.name+p.surname)),m=[...BP];ex.forEach(p=>{if(!ks.has(p.name+p.surname)){m.push(p);ks.add(p.name+p.surname);}});return m;};
 const EX={'วงศกร งามทอง':{'2':'เข้า','5':'เข้า','8':'เข้า'},'สิทธิกร ชื่นเย็น':{'2':'เข้า','5':'เข้า'},'คุณาธิป มีทอง':{'1':'ควง','3':'เข้า','6':'ควง'},'ไกรสร งอกผล':{'1':'ควง','2':'ควง','4':'เข้า','5':'เข้า','7':'เข้า','8':'เข้า'},'พงศ์ปณต วงศ์ศรีพรม':{'1':'เข้า','3':'ควง','6':'เข้า'},'ธนพล แก้วสุขใส':{'1':'เข้า','3':'เข้า','6':'ควง'},'พงศ์ภรณ์ คงบุรี':{'4':'เข้า','7':'ควง'},'สัญญา สีสาพุธ':{'2':'ควง','5':'เข้า','8':'เข้า'},'สุทิน สรสิงห์':{'2':'ควง','4':'ควง','8':'ควง'},'โชคอนันต์ ชมภูแสง':{'3':'ควง','7':'เข้า'},'ธนากรณ์ โพธิ์แก้ว':{'4':'เข้า','8':'ควง'},'รหัสลับ ธรรมสา':{'2':'ควง','4':'ควง','8':'เข้า'},'ธีระวัฒน์ นวนสาร':{'3':'ควง','7':'เข้า'},'วันชนะ สุธรรม':{'2':'ควง','3':'ควง','4':'ควง','5':'ควง','7':'ควง','8':'ควง'},'นัทธพร วงค์กระโซ่':{'6':'ควง'},'อันวา โยธะวงษ์':{'2':'เข้า','5':'เข้า'},'ธัชรัฏฐ์ สิงห์อุดม':{'1':'ควง'},'ศิโรดม ทอนเทพ':{'7':'ควง'},'อภินันท์ ดีรักษา':{'6':'เข้า','8':'ควง'},'ดุสิต อุบลชัย':{'1':'ควง','2':'ควง','3':'ควง','6':'ควง'},'ทัตธินีกรณ์ ชีพมูลน้อย':{'6':'ควง'},'ภานุพงศ์ แฉล้มกลาง':{'8':'ควง'},'วรเทพ สอนพงษ์':{'1':'ควง','3':'ควง','4':'ควง','5':'เข้า','7':'เข้า'},'อาทิตย์ วันหนา':{'5':'ควง','8':'ควง'}};
 
@@ -553,26 +524,9 @@ function getSchData(iso){
   return res;
 }
 
-function getScheduleMount(){
-  let mountEl=document.getElementById('schContent');
-  if(mountEl)return mountEl;
-
-  const mainBody=document.querySelector('#pg1 .card .card-body');
-  if(!mainBody)return null;
-
-  let capEl=document.getElementById('schCap');
-  if(!capEl){
-    capEl=document.createElement('div');
-    capEl.id='schCap';
-    capEl.className='sch-wrap';
-    mainBody.appendChild(capEl);
-  }
-
-  mountEl=document.createElement('div');
-  mountEl.id='schContent';
-  capEl.appendChild(mountEl);
-  return mountEl;
-}
+// Main schedule column widths (stored per-session only)
+const schColW={zone:52,id:48,time1:100,time2:100,name:150};
+let schFontSize=14; // px, adjustable
 
 function renderSch(){
   const iso=curISO;if(!iso)return;
@@ -580,7 +534,7 @@ function renderSch(){
   document.getElementById('pg1Label').textContent=title;
   document.getElementById('dListTitle').textContent=`รายชื่อเข้าเวร วันที่ ${thDate(iso)}`;
   const sched=getSchData(iso);
-  let html=`<table class="st" id="schTable">
+  let html=`<table class="st" id="schTable" style="font-size:${schFontSize}px">
   <colgroup>
     <col id="sc0" style="width:${schColW.zone}px">
     <col id="sc1" style="width:${schColW.id}px">
@@ -603,12 +557,9 @@ function renderSch(){
     });
   });
   const sig=sched.sig;
-  html+=`<tr class="tr-sig"><td colspan="5" style="text-align:left">
-    สัญญาณผ่าน &nbsp; ถาม <span class="kw">${sig.ask||'—'}</span> &nbsp; ตอบ <span class="kw">${sig.ans||'—'}</span>
-  </td></tr></table>`;
-  const schEl=getScheduleMount();
-  if(!schEl){toast('⚠️ ไม่พบพื้นที่แสดงตารางเวร');return;}
-  schEl.innerHTML=html;
+  html+=`<tr class="tr-sig"><td colspan="5" style="text-align:left">สัญญาณผ่าน &nbsp; ถาม <span class="kw">${sig.ask||'—'}</span> &nbsp; ตอบ <span class="kw">${sig.ans||'—'}</span></td></tr></table>`;
+  document.getElementById('schContent').innerHTML=html;
+  initSchResizers();
   renderDList(iso);
 }
 
@@ -644,9 +595,8 @@ function editSchName(iso,z,shiftId){
   if(!ov[shiftId])ov[shiftId]={};ov[shiftId].dn=dn;ov[shiftId].nn=nn;
   setSCO(iso,ov);renderSch();toast('✅ แก้ไขแล้ว');
 }
-
-function onDateChange(){curISO=document.getElementById('vDate').value;renderSch();}
-const goToday=()=>{const t=realToday();document.getElementById('vDate').value=t;curISO=t;renderSch();};
+function onDateChange(){curISO=document.getElementById('vDate').value;renderSch();renderBlankTable();}
+const goToday=()=>{const t=realToday();document.getElementById('vDate').value=t;curISO=t;renderSch();renderBlankTable();};
 
 function renderDList(iso){
   const all=allDutiesForDate(iso),dl=document.getElementById('dList');
@@ -661,69 +611,36 @@ function allDutiesForDate(iso){
 const delUD=(iso,uid)=>{if(!confirm('ลบ?'))return;remDuty(iso,uid);renderDList(iso);renderSch();renderRoster();toast('🗑 ลบแล้ว');};
 
 function copyImg(elId){
-  const el=document.getElementById(elId);
-  if(!el){toast('⚠️ ไม่พบพื้นที่ที่ต้องการคัดลอก');return;}
-
+  const el=document.getElementById(elId);if(!el){toast('⚠️ ไม่พบพื้นที่');return;}
   const run=async()=>{
     let target=el,cleanup=null;
-
-    // สำหรับตารางเวร: จับภาพในสัดส่วนคงที่ (คล้ายไฟล์ตัวอย่าง) ไม่ให้ภาพยืดเต็มจอ
     if(elId==='schCap'){
+      // คำนวณความกว้างจากตารางจริงให้พอดีกับเนื้อหา ไม่กว้างเกิน
+      const tblEl=el.querySelector('table');
+      const tblW=tblEl?tblEl.scrollWidth:600;
+      const capW=Math.max(420,Math.min(tblW+6,820));
       const host=document.createElement('div');
-      host.style.position='fixed';
-      host.style.left='-10000px';
-      host.style.top='0';
-      host.style.background='#fff';
-      host.style.padding='0';
-      host.style.margin='0';
-      host.style.width='760px';
-
+      host.style.cssText=`position:fixed;left:-10000px;top:0;background:#fff;width:${capW}px;padding:0`;
       const clone=el.cloneNode(true);
-      clone.style.width='760px';
-      clone.style.maxWidth='760px';
-      clone.style.overflow='visible';
-      clone.querySelectorAll('table').forEach(t=>{t.style.width='100%';t.style.minWidth='760px';});
-
-      host.appendChild(clone);
-      document.body.appendChild(host);
-      target=clone;
-      cleanup=()=>host.remove();
+      clone.style.width=capW+'px';clone.style.maxWidth=capW+'px';clone.style.overflow='visible';
+      clone.querySelectorAll('table').forEach(t=>{t.style.width='100%';t.style.fontSize=schFontSize+'px';});
+      host.appendChild(clone);document.body.appendChild(host);
+      target=clone;cleanup=()=>host.remove();
     }
-
     try{
-      const c=await html2canvas(target,{backgroundColor:'#ffffff',scale:2,useCORS:true});
-      try{
-        await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));
-        toast('📋 คัดลอกรูปแล้ว!');
-      }catch{
-        const a=document.createElement('a');
-        a.download='ตารางเวร.png';
-        a.href=c.toDataURL();
-        a.click();
-        toast('📷 บันทึกรูปแทน');
-      }
-    }finally{
-      if(cleanup)cleanup();
-    }
+      const c=await html2canvas(target,{backgroundColor:'#fff',scale:2,useCORS:true});
+      try{await new Promise((r,rj)=>c.toBlob(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(r).catch(rj)));toast('📋 คัดลอกรูปแล้ว!');}
+      catch{const a=document.createElement('a');a.download='ตารางเวร.png';a.href=c.toDataURL();a.click();toast('📷 บันทึกรูปแทน');}
+    }finally{if(cleanup)cleanup();}
   };
-
-  if(typeof html2canvas==='undefined'){
-    const s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    s.onload=()=>run().catch(()=>toast('⚠️ ไม่สามารถสร้างรูปได้'));
-    s.onerror=()=>toast('⚠️ โหลดเครื่องมือคัดลอกรูปไม่สำเร็จ');
-    document.head.appendChild(s);
-  }else{
-    run().catch(()=>toast('⚠️ ไม่สามารถสร้างรูปได้'));
-  }
+  if(typeof html2canvas==='undefined'){const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=()=>run();document.head.appendChild(s);}else run();
 }
 
-
-// ═══════════════════════════════════════════
-//  BLANK TABLE — free-form spreadsheet
-//  Data: BL[iso] = { rows: [ [ {v,cs,rs,hidden}, ... ], ... ] }
-//  cs = colspan, rs = rowspan (for merge), hidden = merged-away
-// ═══════════════════════════════════════════
+// ══════════════════════════════════════════
+//  BLANK TABLE — Excel-like
+//  Data: BL[iso].rows = [[{v,cs,rs,hidden,bold,red,center,style}, ...], ...]
+//  colWidths: BL[iso].colW = [w, w, ...]
+// ══════════════════════════════════════════
 let BL=ls(KB);
 const saveBL=()=>ss(KB,BL);
 
@@ -1210,22 +1127,25 @@ function goPage(n){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n-1));
 }
 
-// ═══════════════════════════════════════════
-//  INIT — Req 2: use actual today's date
-// ═══════════════════════════════════════════
-function initApp(){
-  curISO=realToday();
-  const dEl=document.getElementById('vDate');
-  if(dEl)dEl.value=curISO;
-  renderSch();
-  renderRoster();
+// ── Font size adjuster ──
+function schFontAdj(delta){
+  schFontSize=Math.max(9,Math.min(22,schFontSize+delta));
+  const d=document.getElementById('schFontDisp');if(d)d.textContent=schFontSize;
+  const tbl=document.getElementById('schTable');if(tbl)tbl.style.fontSize=schFontSize+'px';
 }
 
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded',initApp,{once:true});
-}else{
-  initApp();
+// INIT
+let APP_INIT_DONE=false;
+function initApp(){
+  if(APP_INIT_DONE)return;APP_INIT_DONE=true;
+  curISO=realToday();
+  const dEl=document.getElementById('vDate');if(dEl)dEl.value=curISO;
+  try{renderSch();}catch(e){console.error(e);}
+  try{renderBlankTable();}catch(e){console.error(e);}
+  try{renderRoster();}catch(e){console.error(e);}
 }
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initApp,{once:true});}
+else{initApp();}
 </script>
 </body>
 </html>
